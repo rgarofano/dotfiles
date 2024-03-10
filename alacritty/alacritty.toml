@@ -1,0 +1,20 @@
+live_config_reload = true
+
+[shell]
+program = "/usr/bin/zsh"
+
+[font]
+size = 18.0
+
+[font.normal]
+family = "MesloLGS Nerd Font"
+style = "Regular"
+
+[window]
+decorations = "buttonless"
+dynamic_padding = true
+opacity = 0.8
+
+[window.dimensions]
+columns = 200
+lines = 50
