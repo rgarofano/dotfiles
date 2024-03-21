@@ -24,5 +24,6 @@ return {
 		require("notify").setup({
 			background_colour = "#000000",
 		})
+		require("telescope").load_extension("noice")
 	end,
 }
