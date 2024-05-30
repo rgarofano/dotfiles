@@ -102,5 +102,14 @@ source $ZSH/oh-my-zsh.sh
 
 export SHELL=$(which zsh)
 
+autoload -Uz compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' rehash true  
+zmodload zsh/complist
+compinit
+
 eval "$(starship init zsh)"
 alias config='/usr/bin/git --git-dir=/home/rgarofano/dotfiles --work-tree=/home/rgarofano/.config'
+config config --local status.showUntrackedFiles no
