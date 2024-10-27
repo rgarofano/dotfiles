@@ -12,7 +12,7 @@ return {
 			workspaces = {
 				{
 					name = "personal",
-					path = "~/OneDrive/Notes",
+					path = "~/Notes",
 				},
 			},
 			completion = {

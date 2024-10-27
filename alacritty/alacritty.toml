@@ -1,6 +1,5 @@
-live_config_reload = true
 
-[shell]
+[terminal.shell]
 program = "/usr/bin/zsh"
 
 [font]
@@ -13,7 +12,7 @@ style = "Regular"
 [window]
 decorations = "buttonless"
 dynamic_padding = true
-opacity = 1
+opacity = 0.8
 
 [window.dimensions]
 columns = 133
@@ -54,3 +53,8 @@ foreground = "#bdc1c6"
 [colors.selection]
 background = "#b2ceee"
 text = "#080808"
+
+[general]
+live_config_reload = true
+
+[terminal]
