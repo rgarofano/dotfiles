@@ -99,6 +99,8 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias vim="nvim"
+alias search='vim $(fzf --preview="bat --color=always {}")'
 
 export SHELL=$(which zsh)
 
