@@ -100,10 +100,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias vim="nvim"
-alias search='vim $(fzf --preview="bat --color=always {}")'
 
-export SHELL=$(which zsh)
-
+#################### Enable full zsh tab completion
 autoload -Uz compinit
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 
@@ -112,6 +110,20 @@ zstyle ':completion:*' rehash true
 zmodload zsh/complist
 compinit
 
+#################### Terminal Prompt
 eval "$(starship init zsh)"
+
+#################### dotfiles
 alias config='/usr/bin/git --git-dir=/home/rgarofano/dotfiles --work-tree=/home/rgarofano/.config'
 config config --local status.showUntrackedFiles no
+
+#################### fzf (unix fuzzy finder) config
+# code - search codebase from current directory and open selected files in neovim
+# bat is used instead of cat for syntax highlighting
+alias code='vim $(fzf --preview="bat --color=always {}")'
+# spkg - search for a package on Arch and install the selected packages
+alias ipkg='pacman -Slq | fzf --multi --preview "pacman -Si {}" | xargs -ro sudo pacman -S'
+# rpkg - search for a package on Arch and install the selected packages
+alias rmpkg='pacman -Qq | fzf --multi --preview "pacman -Qi {}" | xargs -ro sudo pacman -Rns'
+
+source <(fzf --zsh)

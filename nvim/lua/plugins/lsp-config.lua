@@ -11,7 +11,6 @@ return {
 			require("mason-lspconfig").setup({
 				ensure_installed = {
 					"lua_ls",
-					"tsserver",
 					"clangd",
 				},
 			})
@@ -26,27 +25,11 @@ return {
 			lspconfig.lua_ls.setup({
 				capabilities = capabilities,
 			})
-			lspconfig.tsserver.setup({
-				capabilities = capabilities,
-			})
 			lspconfig.clangd.setup({
 				capabilities = capabilities,
 				cmd = {
 					"clangd",
 					"--fallback-style=webkit",
-				},
-			})
-			lspconfig.tailwindcss.setup({
-				capabilities = capabilities,
-				filetypes = {
-					"html",
-					"css",
-					"scss",
-					"javascript",
-					"javascriptreact",
-					"typescript",
-					"typescriptreact",
-					"vue",
 				},
 			})
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
