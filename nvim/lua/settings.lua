@@ -8,7 +8,11 @@ vim.opt.softtabstop = 4
 vim.opt.expandtab = false
 
 -- Remap copy to system clipboard
+vim.keymap.set("n", "<leader>y", '"+y', {})
 vim.keymap.set("v", "<leader>y", '"+y', {})
+
+-- Remove search highlighting
+vim.keymap.set("n", "<C-c>", "<cmd>nohlsearch<CR>")
 
 -- Line numbers
 vim.opt.relativenumber = true
@@ -36,3 +40,12 @@ vim.opt.timeoutlen = 300
 
 -- Minimum number of lines above and below the cursor
 vim.opt.scrolloff = 10
+
+-- Highlight when yanking
+vim.api.nvim_create_autocmd("TextYankPost", {
+    desc = "Highlight when yanking (copying) text",
+    group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+    callback = function ()
+	vim.highlight.on_yank()
+    end,
+})
