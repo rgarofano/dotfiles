@@ -27,10 +27,13 @@ return {
 				"--fallback-style=webkit",
 			},
 		})
-		require("lspconfig").svlangserver.setup({
+		lspconfig.svlangserver.setup({
 			cmd = { "svlangserver" },
 			filetypes = { "bluespec" },
 			root_dir = require("lspconfig").util.root_pattern(".git", "*.bsv"),
+		})
+		lspconfig.ts_ls.setup({
+			capabilities = capabilities,
 		})
 		vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
 		vim.keymap.set("n", "gd", vim.lsp.buf.definition, {})

@@ -5,7 +5,7 @@ vim.g.mapleader = " "
 vim.opt.tabstop = 8
 vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 4
-vim.opt.expandtab = false
+vim.opt.expandtab = true
 -- Line numbers
 vim.opt.relativenumber = true
 -- Line Wrapping
