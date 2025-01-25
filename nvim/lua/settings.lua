@@ -27,6 +27,8 @@ vim.opt.timeoutlen = 300
 -- Minimum number of lines above and below the cursor
 vim.opt.scrolloff = 10
 
+-- Set <C-c> to the command key
+vim.keymap.set('i', '<C-c>', '<Esc>', { noremap = true })
 -- Remap copy to system clipboard
 vim.keymap.set("n", "<leader>y", '"+y', {})
 vim.keymap.set("v", "<leader>y", '"+y', {})
