@@ -53,6 +53,9 @@ export ZSHRC="$HOME/.config/zsh/.zshrc"
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 
+# Directory for personal projects
+export PROJECTS_BASE_DIR=$HOME/Projects
+
 function edit-command-line-inplace() {
   if [[ $CONTEXT != start ]]; then
     if (( ! ${+widgets[edit-command-line]} )); then
@@ -84,6 +87,27 @@ function edit-command-line-inplace() {
 
 zle -N edit-command-line-inplace
 bindkey "^e" edit-command-line-inplace
+
+function project() {
+    if tmux has-session; then
+        if [[ -z $1 ]]; then
+            tmux attach-session $1
+        else
+            # default to the last used session
+            tmux attach-session
+        fi
+    elif [[ -z $1 ]]; then
+        echo "Please provide a project name when attaching to a session that doesn't exist" 
+    else
+        mkdir -p $PROJECTS_BASE_DIR/$1
+        cd $PROJECTS_BASE_DIR/$1
+
+        tmux new-session -s $1 \
+            \; rename-window frontend \; split-window -h \; send-keys vi C-m \; select-pane -L \; resize-pane -L 45 \
+            \; new-window -n backend \; split-window -h \; send-keys vi C-m \; select-pane -L \; resize-pane -L 45 \
+            \; select-window -p
+    fi
+}
 
 # enable syntax highlighting (should be last)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
