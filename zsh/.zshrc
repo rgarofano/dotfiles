@@ -54,7 +54,7 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 
 # Directory for personal projects
-export PROJECTS_BASE_DIR=$HOME/Projects
+export PROJECTS_BASE_DIR="$HOME/Projects"
 
 function edit-command-line-inplace() {
   if [[ $CONTEXT != start ]]; then
@@ -89,24 +89,57 @@ zle -N edit-command-line-inplace
 bindkey "^e" edit-command-line-inplace
 
 function project() {
-    if tmux has-session; then
-        if [[ -z $1 ]]; then
-            tmux attach-session $1
-        else
-            # default to the last used session
-            tmux attach-session
-        fi
-    elif [[ -z $1 ]]; then
-        echo "Please provide a project name when attaching to a session that doesn't exist" 
-    else
-        mkdir -p $PROJECTS_BASE_DIR/$1
-        cd $PROJECTS_BASE_DIR/$1
-
-        tmux new-session -s $1 \
-            \; rename-window frontend \; split-window -h \; send-keys vi C-m \; select-pane -L \; resize-pane -L 45 \
-            \; new-window -n backend \; split-window -h \; send-keys vi C-m \; select-pane -L \; resize-pane -L 45 \
-            \; select-window -p
+    if [[ -z $1 ]]; then
+        tmux attach-session
+        return 0
     fi
+
+    if [[ ! -z $2 ]]; then
+        if tmux has-session -t "$1 ($2)"; then
+            tmux attach-session -t "$1 ($2)"
+            return 0
+        fi
+    else
+        if tmux has-session -t "$1 (frontend)"; then
+            tmux attach-session -t "$1 (frontend)"
+            return 0
+        elif tmux has-session -t "$1 (backend)"; then
+            tmux attach-session -t "$1 (backend)"
+            return 0
+        fi
+    fi
+
+    frontend_dir="$PROJECTS_BASE_DIR/$1/${1}-client"
+    backend_dir="$PROJECTS_BASE_DIR/$1/${1}-server"
+    mkdir -p $frontend_dir
+    mkdir -p $backend_dir
+
+    tmux new-session -c $frontend_dir -s "$1 (frontend)" \
+        \; rename-window Neovim \; send-keys vi C-m \; new-window \; detach
+    tmux new-session -c $backend_dir -s "$1 (backend)" \
+        \; rename-window Neovim \; send-keys vi C-m \; new-window \; detach
+
+    if [[ ! -z $2 ]]; then
+        tmux attach-session -t "$1 ($2)"
+        return 0
+    fi
+
+    tmux attach-session -t "$1 (frontend)"
+}
+
+function create_react_app() {
+    if [[ -z $1 ]]; then
+        echo "Error: Expected an argument for the name of the app"
+        return 0
+    fi
+
+    npm create vite@latest $1 -- --template react-ts
+    cd $1
+    npm install tailwindcss @tailwindcss/vite
+    sed -i "/import { defineConfig } from 'vite'/a\import tailwindcss from '@tailwindcss/vite'" vite.config.ts
+    sed -i 's/plugins: \[react()\],/plugins: \[tailwindcss(), react()],/' vite.config.ts
+    sed -i '1i @import "tailwindcss";\n' src/index.css
+    sed -i 's/React/React + Tailwindcss/' src/App.tsx
 }
 
 # enable syntax highlighting (should be last)
