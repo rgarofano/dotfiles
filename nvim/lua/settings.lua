@@ -26,6 +26,8 @@ vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 -- Minimum number of lines above and below the cursor
 vim.opt.scrolloff = 10
+-- Highlight the current line
+vim.opt.cursorline = true
 
 -- Set <C-c> to the command key
 vim.keymap.set('i', '<C-c>', '<Esc>', { noremap = true })
