@@ -5,12 +5,8 @@
 # ██║  ██║   ██║   ██║  ██║██║ ╚████║███████║    ███████╗███████║██║  ██║██║  ██║╚██████╗    
 # ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+# prompt
+eval "$(starship init zsh)"
 
 # setup history file
 HISTSIZE=10000
@@ -55,6 +51,9 @@ export ZSHRC="$HOME/.config/zsh/.zshrc"
 # set the default editor
 export VISUAL=nvim
 export EDITOR="$VISUAL"
+
+# have proper terminal experience over ssh
+export TERM=xterm-256color
 
 # Directory for personal projects
 export PROJECTS_BASE_DIR="$HOME/Projects"
@@ -112,8 +111,8 @@ function project() {
         fi
     fi
 
-    frontend_dir="$PROJECTS_BASE_DIR/$1/${1}-client"
-    backend_dir="$PROJECTS_BASE_DIR/$1/${1}-server"
+    frontend_dir="$PROJECTS_BASE_DIR/$1/client"
+    backend_dir="$PROJECTS_BASE_DIR/$1/server"
     mkdir -p $frontend_dir
     mkdir -p $backend_dir
 
@@ -145,9 +144,10 @@ function create_react_app() {
     sed -i 's/React/React + Tailwindcss/' src/App.tsx
 }
 
+function youtube() {
+    [[ -z $1 ]] && echo "Error: please provide a link to a youtube video" && exit 0
+    yt-dlp "$1" -o - | ffplay - -autoexit -loglevel quiet
+}
+
 # enable syntax highlighting (should be near bottom)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ~/powerlevel10k/powerlevel10k.zsh-theme
-
-# To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
-[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh

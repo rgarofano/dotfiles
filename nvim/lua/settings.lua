@@ -39,6 +39,11 @@ vim.keymap.set("n", "<C-c>", "<cmd>nohlsearch<CR>")
 -- Cycle through quick fix list
 vim.keymap.set("n", "<leader>cn", "<cmd>cnext<CR>", {})
 vim.keymap.set("n", "<leader>cp", "<cmd>cprevious<CR>", {})
+-- Navigate between vim windows with C-{h,j,k,l}
+vim.keymap.set("n", "<C-h>", "<cmd>wincmd h<CR>", {})
+vim.keymap.set("n", "<C-j>", "<cmd>wincmd j<CR>", {})
+vim.keymap.set("n", "<C-k>", "<cmd>wincmd k<CR>", {})
+vim.keymap.set("n", "<C-l>", "<cmd>wincmd k<CR>", {})
 -- Cycle through LSP warnings/errors
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, {})
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, {})
