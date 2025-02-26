@@ -21,6 +21,12 @@ compinit
 _comp_options+=(globdots)
 source <(fzf --zsh)
 
+# Escape question mark character in pasted links
+set zle_bracketed_paste
+autoload -Uz bracketed-paste-magic url-quote-magic
+zle -N bracketed-paste bracketed-paste-magic
+zle -N self-insert url-quote-magic
+
 # cycle through tab completion options with vim keybindings
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
@@ -39,11 +45,13 @@ config config --local status.showUntrackedFiles no
 # bat is used instead of cat for syntax highlighting
 alias code='vi $(fzf --preview="bat --color=always {}")'
 # ipkg - install software on Arch linux by selecting package(s) in the fuzzy finder
-alias ipkg='pacman -Slq | fzf --multi --preview "pacman -Si {}" | xargs -ro sudo pacman -S'
+alias ipkg='yay -Slq | fzf --multi --preview "yay -Si {}" | xargs -ro yay -S'
 # rmpkg - remove software on Arch linux by selecting package(s) in the fussy finder
-alias rmpkg='pacman -Qq | fzf --multi --preview "pacman -Qi {}" | xargs -ro sudo pacman -Rns'
+alias rmpkg='yay -Qq | fzf --multi --preview "yay -Qi {}" | xargs -ro yay -Rns'
 # update Arch linux with a more intuitive command
-alias update='sudo pacman -Syu'
+alias update='yay -Syu'
+# open bookmarks in a browser
+alias book="sed '/^$/d' bookmarks | sed -r 's/^(.*)\s+http.*$/\1/g' | fzf | xargs -I {} grep {} bookmarks | sed -r 's/^.*(http\S+).*$/\1/g' | xargs xdg-open"
 
 # shortcut for zshrc path
 export ZSHRC="$HOME/.config/zsh/.zshrc"
@@ -144,9 +152,10 @@ function create_react_app() {
     sed -i 's/React/React + Tailwindcss/' src/App.tsx
 }
 
-function youtube() {
-    [[ -z $1 ]] && echo "Error: please provide a link to a youtube video" && exit 0
-    yt-dlp "$1" -o - | ffplay - -autoexit -loglevel quiet
+function play() {
+    [[ -z $1 ]] && echo "Please provide a video file or youtube link" && return 0
+    tmux has-session -t play > /dev/null 2>&1 || tmux new-session -s play \; detach-client > /dev/null
+    tmux attach-session -t play \; new-window \; send-keys "mpv $1" C-m \; detach-client > /dev/null
 }
 
 # enable syntax highlighting (should be near bottom)

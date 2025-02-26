@@ -1,0 +1,10 @@
+portainer http://gmicloud.online:9000/#!/1/docker/containers
+overseerr http://gmicloud.online:5055
+jellyfin http://gmicloud.online:8096
+immich http://gmicloud.online:2283/photos
+excalidraw http://gmicloud.online:3500/
+rbc https://www.rbcroyalbank.com/
+news https://gmicloud.online/index.php/apps/news/
+file browser https://gmicloud.online/index.php/apps/files/
+courseware http://gmicloud.online:5000
+dotfiles https://github.com/rgarofano/dotfiles
