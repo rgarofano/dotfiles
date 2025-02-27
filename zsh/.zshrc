@@ -51,7 +51,7 @@ alias rmpkg='yay -Qq | fzf --multi --preview "yay -Qi {}" | xargs -ro yay -Rns'
 # update Arch linux with a more intuitive command
 alias update='yay -Syu'
 # open bookmarks in a browser
-alias book="sed '/^$/d' bookmarks | sed -r 's/^(.*)\s+http.*$/\1/g' | fzf | xargs -I {} grep {} bookmarks | sed -r 's/^.*(http\S+).*$/\1/g' | xargs xdg-open"
+alias book="sed '/^$/d' ~/.config/bookmarks | sed -r 's/^(.*)\s+http.*$/\1/g' | fzf | xargs -I {} grep {} ~/.config/bookmarks | sed -r 's/^.*(http\S+).*$/\1/g' | xargs xdg-open"
 
 # shortcut for zshrc path
 export ZSHRC="$HOME/.config/zsh/.zshrc"

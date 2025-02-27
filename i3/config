@@ -41,13 +41,7 @@ exec --no-startup-id picom
 exec --no-startup-id redshift
 
 # Setup workspaces on login
-# Run 'xprop' and click on window to determine class name
-exec signal-desktop
-exec firefox-developer-edition
-exec ghostty
-assign [class="signal"] 1
-assign [class="firefox-developer-edition"] 2
-assign [class="ghostty"] 3
+exec --no-startup-id i3-msg 'workspace 1; exec signal-desktop; workspace 2; exec firefox-developer-edition; workspace 3; exec ghostty'
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
