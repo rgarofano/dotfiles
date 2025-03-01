@@ -41,7 +41,7 @@ exec --no-startup-id picom
 exec --no-startup-id redshift
 
 # Setup workspaces on login
-exec --no-startup-id i3-msg 'workspace 1; exec signal-desktop; workspace 2; exec firefox-developer-edition; workspace 3; exec ghostty'
+exec --no-startup-id i3-msg 'workspace 1; exec signal-desktop; workspace 2; exec brave; workspace 3; exec ghostty'
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -70,6 +70,9 @@ bindsym $mod+d exec --no-startup-id dmenu_run
 # There also is i3-dmenu-desktop which only displays applications shipping a
 # .desktop file. It is a wrapper around dmenu, so you need that installed.
 # bindcode $mod+40 exec --no-startup-id i3-dmenu-desktop
+
+# Open bookmarks
+bindsym $mod+b exec --no-startup-id sed '/^#/d' ~/.config/bookmarks | sed -E 's/(.*)http.*/\1/g' | dmenu -l 30 | xargs -I {} grep "{}" ~/.config/bookmarks | sed -E 's/.*(http\S*).*$/\1/g' | xargs xdg-open
 
 # change focus
 bindsym $mod+j focus up
