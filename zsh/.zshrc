@@ -6,12 +6,14 @@
 # ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    
 
 # prompt
-eval "$(starship init zsh)"
-
-# setup history file
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE="$HOME/.cache/zsh/history"
+autoload -Uz vcs_info
+precmd_vcs_info() { vcs_info }
+precmd_functions+=( precmd_vcs_info )
+tux=$(echo "\Uebc6")
+git=$(echo "\Ue702")
+zstyle ':vcs_info:git:*' formats " $git %b"
+setopt prompt_subst
+PROMPT='[%F{yellow}${tux} %F{cyan}%n%f %f%F{blue}%~%f%F{red}${vcs_info_msg_0_}%f]$ '
 
 # autocompletion
 autoload -U compinit
@@ -19,13 +21,6 @@ zstyle ":completion:*" menu select
 zmodload zsh/complist
 compinit
 _comp_options+=(globdots)
-source <(fzf --zsh)
-
-# Escape question mark character in pasted links
-set zle_bracketed_paste
-autoload -Uz bracketed-paste-magic url-quote-magic
-zle -N bracketed-paste bracketed-paste-magic
-zle -N self-insert url-quote-magic
 
 # cycle through tab completion options with vim keybindings
 bindkey -M menuselect 'h' vi-backward-char
@@ -33,9 +28,22 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
-# command shortcuts
+# setup history file
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE="$HOME/.cache/zsh/history"
+
+# aliases
 alias ll="ls -la"
 alias vi="nvim"
+alias webcam="mpv --profile=low-latency --untimed /dev/video0"
+
+# Escape question mark character in pasted links
+set zle_bracketed_paste
+autoload -Uz bracketed-paste-magic url-quote-magic
+zle -N bracketed-paste bracketed-paste-magic
+zle -N self-insert url-quote-magic
+
 
 # dotfile management
 alias config='git --git-dir=/home/rgarofano/dotfiles --work-tree=/home/rgarofano/.config'

@@ -11,3 +11,4 @@ dotfiles https://github.com/rgarofano/dotfiles
 sportsnet https://watch.sportsnet.ca/
 search http://gmicloud.online:5644
 vul https://vul.ca/myvul
+certbot https://certbot.eff.org/instructions?ws=nginx&os=pip

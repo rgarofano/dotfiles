@@ -1,3 +1,0 @@
-return {
-    "mtikekar/vim-bsv",
-}
