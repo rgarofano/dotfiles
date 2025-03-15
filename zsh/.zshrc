@@ -34,7 +34,7 @@ SAVEHIST=10000
 HISTFILE="$HOME/.cache/zsh/history"
 
 # aliases
-alias ll="ls -la"
+alias ll="ls -laF"
 alias vi="nvim"
 alias webcam="mpv --profile=low-latency --untimed /dev/video0"
 
@@ -44,9 +44,8 @@ autoload -Uz bracketed-paste-magic url-quote-magic
 zle -N bracketed-paste bracketed-paste-magic
 zle -N self-insert url-quote-magic
 
-
 # dotfile management
-alias config='git --git-dir=/home/rgarofano/dotfiles --work-tree=/home/rgarofano/.config'
+alias config="git --git-dir=$HOME/dotfiles --work-tree=$HOME/.config"
 config config --local status.showUntrackedFiles no
 
 # code - search codebase from current directory and open selected files in neovim
@@ -58,11 +57,6 @@ alias ipkg='yay -Slq | fzf --multi --preview "yay -Si {}" | xargs -ro yay -S'
 alias rmpkg='yay -Qq | fzf --multi --preview "yay -Qi {}" | xargs -ro yay -Rns'
 # update Arch linux with a more intuitive command
 alias update='yay -Syu'
-# open bookmarks in a browser
-alias book="sed '/^$/d' ~/.config/bookmarks | sed -r 's/^(.*)\s+http.*$/\1/g' | fzf | xargs -I {} grep {} ~/.config/bookmarks | sed -r 's/^.*(http\S+).*$/\1/g' | xargs xdg-open"
-
-# shortcut for zshrc path
-export ZSHRC="$HOME/.config/zsh/.zshrc"
 
 # set the default editor
 export VISUAL=nvim
@@ -74,57 +68,14 @@ export TERM=xterm-256color
 # Directory for personal projects
 export PROJECTS_BASE_DIR="$HOME/Projects"
 
-function edit-command-line-inplace() {
-  if [[ $CONTEXT != start ]]; then
-    if (( ! ${+widgets[edit-command-line]} )); then
-      autoload -Uz edit-command-line
-      zle -N edit-command-line
-    fi
-    zle edit-command-line
-    return
-  fi
-  () {
-    emulate -L zsh -o nomultibyte
-    local editor=("${(@Q)${(z)${VISUAL:-${EDITOR:-vi}}}}") 
-    case $editor in
-      (*vim*)
-        "${(@)editor}" -c "normal! $(($#LBUFFER + 1))go" -- $1
-      ;;
-      (*emacs*)
-        local lines=("${(@f)LBUFFER}") 
-        "${(@)editor}" +${#lines}:$((${#lines[-1]} + 1)) $1
-      ;;
-      (*)
-        "${(@)editor}" $1
-      ;;
-    esac
-    BUFFER=$(<$1)
-    CURSOR=$#BUFFER
-  } =(<<<"$BUFFER") </dev/tty
-}
-
-zle -N edit-command-line-inplace
-bindkey "^e" edit-command-line-inplace
-
 function project() {
-    if [[ -z $1 ]]; then
-        tmux attach-session
-        return 0
-    fi
+    [[ -z $1 ]] && tmux attach-session && return 0
 
-    if [[ ! -z $2 ]]; then
-        if tmux has-session -t "$1 ($2)"; then
-            tmux attach-session -t "$1 ($2)"
-            return 0
-        fi
+    if [[ -z $2 ]]; then
+        tmux has-session -t "$1 (frontend)" && tmux attach-session -t "$1 (frontend)" && return 0
+        tmux has-session -t "$1 (backend)" && tmux attach-session -t "$1 (backend)" && return 0
     else
-        if tmux has-session -t "$1 (frontend)"; then
-            tmux attach-session -t "$1 (frontend)"
-            return 0
-        elif tmux has-session -t "$1 (backend)"; then
-            tmux attach-session -t "$1 (backend)"
-            return 0
-        fi
+        tmux has-session -t "$1 ($2)" && tmux attach-session -t "$1 ($2)" && return 0
     fi
 
     frontend_dir="$PROJECTS_BASE_DIR/$1/client"
@@ -137,19 +88,13 @@ function project() {
     tmux new-session -c $backend_dir -s "$1 (backend)" \
         \; rename-window Neovim \; send-keys vi C-m \; new-window \; detach
 
-    if [[ ! -z $2 ]]; then
-        tmux attach-session -t "$1 ($2)"
-        return 0
-    fi
+    [[ -z $2 ]] || tmux attach-session -t "$1 ($2)" && return 0
 
     tmux attach-session -t "$1 (frontend)"
 }
 
 function create_react_app() {
-    if [[ -z $1 ]]; then
-        echo "Error: Expected an argument for the name of the app"
-        return 0
-    fi
+    [[ -z $1 ]] && echo "Error: Expected an argument for the name of the app" && return 0
 
     npm create vite@latest $1 -- --template react-ts
     cd $1
