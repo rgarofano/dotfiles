@@ -37,6 +37,7 @@ HISTFILE="$HOME/.cache/zsh/history"
 alias ll="ls -laF"
 alias vi="nvim"
 alias webcam="mpv --profile=low-latency --untimed --demuxer-lavf-o-set=input_format=mjpeg /dev/video0"
+alias xclip="xclip -selection c"
 
 # Escape question mark character in pasted links
 set zle_bracketed_paste
@@ -109,6 +110,18 @@ function play() {
     [[ -z $1 ]] && echo "Please provide a video file or youtube link" && return 0
     tmux has-session -t play > /dev/null 2>&1 || tmux new-session -s play \; detach-client > /dev/null
     tmux attach-session -t play \; new-window \; send-keys "mpv --save-watch-history $1" C-m \; detach-client > /dev/null
+}
+
+function ytrss() {
+    [[ -z $1 ]] && echo "Usage: ytrss YOUTUBE_CHANNEL_URL" && return 0
+    curl -s ${1} | grep -oE "https://www\.youtube\.com/feeds/videos\.xml\?channel_id=\S{24}" | head -n 1
+}
+
+function news() {
+    tmux has-session -t news && tmux attach -t news && return 0
+    tmux new-session -d -s news 
+    tmux send-keys -t news "newsboat" Enter
+    tmux attach -t news
 }
 
 # enable syntax highlighting (should be near bottom)
