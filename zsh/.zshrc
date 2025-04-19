@@ -114,7 +114,7 @@ function play() {
 
 function ytrss() {
     [[ -z $1 ]] && echo "Usage: ytrss YOUTUBE_CHANNEL_URL" && return 0
-    curl -s ${1} | grep -oE "https://www\.youtube\.com/feeds/videos\.xml\?channel_id=\S{24}" | head -n 1
+    curl -s ${1} | grep -oE "https://www\.youtube\.com/feeds/videos\.xml\?channel_id=\S{24}" | head -n 1 >> $HOME/.config/newsboat/urls
 }
 
 function news() {
@@ -126,3 +126,5 @@ function news() {
 
 # enable syntax highlighting (should be near bottom)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# enhance vi mode (should be after zsh-syntax-highlighting)
+source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
