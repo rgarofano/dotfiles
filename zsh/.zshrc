@@ -1,8 +1,7 @@
 # ██████╗ ██╗   ██╗ █████╗ ███╗   ██╗███████╗    ███████╗███████╗██╗  ██╗██████╗  ██████╗    
 # ██╔══██╗╚██╗ ██╔╝██╔══██╗████╗  ██║██╔════╝    ╚══███╔╝██╔════╝██║  ██║██╔══██╗██╔════╝    
 # ██████╔╝ ╚████╔╝ ███████║██╔██╗ ██║███████╗      ███╔╝ ███████╗███████║██████╔╝██║         
-# ██╔══██╗  ╚██╔╝  ██╔══██║██║╚██╗██║╚════██║     ███╔╝  ╚════██║██╔══██║██╔══██╗██║         
-# ██║  ██║   ██║   ██║  ██║██║ ╚████║███████║    ███████╗███████║██║  ██║██║  ██║╚██████╗    
+# ██╔══██╗  ╚██╔╝  ██╔══██║██║╚██╗██║╚════██║     ███╔╝  ╚════██║██╔══██║██╔══██╗██║         ██║  ██║   ██║   ██║  ██║██║ ╚████║███████║    ███████╗███████║██║  ██║██║  ██║╚██████╗    
 # ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    
 
 # prompt
@@ -122,6 +121,24 @@ function news() {
     tmux new-session -d -s news 
     tmux send-keys -t news "newsboat" Enter
     tmux attach -t news
+}
+
+function gerrit() {
+    if [[ "$1" == "add" ]]; then
+        [[ -z $2 ]] && echo "Usage: gerrit add PROJECT" && return 1
+        git remote add gerrit ssh://${USER}@gerrit.gmicloud.online:29418/${2}
+    elif [[ "$1" == "push" ]]; then
+        git push gerrit 'HEAD:refs/for/master'
+    elif [[ "$1" == "pull" ]]; then
+        [[ -z $2 ]] && git pull gerrit master && return 0
+        git pull gerrit $2
+    elif [[ "$1" == "submodule" ]] && [[ "$2" == "hook" ]]; then
+        [[ -z $3 ]] || [[ -z $4 ]] && echo "Usage: gerrit submodule hook PARENT_DIR SUBMODULE"
+        curl -Lo ${3}/.git/modules/${4}/hooks/commit-msg http://gerrit.gmicloud.online/tools/hooks/commit-msg
+    else
+        echo "Usage: gerrit (add|push|pull|submodule hook) [ARGS...]"
+        return 1
+    fi
 }
 
 # enable syntax highlighting (should be near bottom)
