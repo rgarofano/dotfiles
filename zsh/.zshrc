@@ -176,6 +176,28 @@ function gerrit() {
     fi
 }
 
+function launch() {
+    if [[ $(basename $(cd .. && pwd)) != "Projects" ]]; then
+        echo "This command must be run in the base directory of a project under ${PROJECTS_BASE_DIR}"
+        return 1
+    fi
+    [[ ! -z $1 ]] && [[ ! $1 =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] && echo "Usage: launch [TAG]\nTAG must be of the format v[0-9]+.[0-9]+.[0-9]+" && return 1
+    echo "Checking format diff before push.."
+    if ! formatdiff; then
+        echo "Format diff failed"
+        return 1
+    fi
+    echo "Format diff passed!"
+    echo "Running content check before push.."
+    if ! contentcheck; then
+        echo "Content check failed"
+        return 1
+    fi
+    echo "Content check passed!"
+    git push origin master
+    [[ ! -z $1 ]] && git tag ${1} && git push origin ${1}
+}
+
 # enable syntax highlighting (should be near bottom)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # enhance vi mode (should be after zsh-syntax-highlighting)
