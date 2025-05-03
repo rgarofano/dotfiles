@@ -37,6 +37,7 @@ alias ll="ls -laF"
 alias vi="nvim"
 alias webcam="mpv --profile=low-latency --untimed --demuxer-lavf-o-set=input_format=mjpeg /dev/video0"
 alias xclip="xclip -selection c"
+alias gcan="git commit --amend --no-edit"
 
 # Escape question mark character in pasted links
 set zle_bracketed_paste
@@ -123,18 +124,52 @@ function news() {
     tmux attach -t news
 }
 
+function contentcheck() {
+    FAILED=0
+    for file in $(git diff --name-only --diff-filter ACMRT HEAD~1 HEAD -- '*.go'); do
+        if [[ $(gopls check ${file}) != "" ]]; then
+            FAILED=1
+            gopls check ${file}
+        fi
+    done
+    return ${FAILED}
+}
+
+function formatdiff() {
+    FAILED=0
+    for file in $(git diff --name-only --diff-filter ACMRT HEAD~1 HEAD -- '*.go'); do
+        if [[ $(gofmt -l ${file}) == ${file} ]]; then
+            FAILED=1 
+            gofmt -d ${file}
+        fi
+    done
+    return ${FAILED}
+}
+
 function gerrit() {
     if [[ "$1" == "add" ]]; then
         [[ -z $2 ]] && echo "Usage: gerrit add PROJECT" && return 1
         git remote add gerrit ssh://${USER}@gerrit.gmicloud.online:29418/${2}
     elif [[ "$1" == "push" ]]; then
+        echo "Checking format diff before push.."
+        if ! formatdiff; then
+            echo "Format diff failed" && return 1
+        fi
+        echo "Format diff passed!"
+        echo "Running content check before push.."
+        if ! contentcheck; then
+            echo "Content check failed" && return 1
+        fi
+        echo "Content check passed!"
         git push gerrit 'HEAD:refs/for/master'
     elif [[ "$1" == "pull" ]]; then
         [[ -z $2 ]] && git pull gerrit master && return 0
         git pull gerrit $2
     elif [[ "$1" == "submodule" ]] && [[ "$2" == "hook" ]]; then
-        [[ -z $3 ]] || [[ -z $4 ]] && echo "Usage: gerrit submodule hook PARENT_DIR SUBMODULE"
-        curl -Lo ${3}/.git/modules/${4}/hooks/commit-msg http://gerrit.gmicloud.online/tools/hooks/commit-msg
+        [[ -z $3 ]] || [[ -z $4 ]] && echo "Usage: gerrit submodule hook PARENT_DIR SUBMODULE" && return 1
+        hooks_dir=${3}/.git/modules/${4}/hooks
+        curl -Lo ${hooks_dir}/commit-msg http://gerrit.gmicloud.online/tools/hooks/commit-msg
+        chmod +x ${hooks_dir}/commit-msg
     else
         echo "Usage: gerrit (add|push|pull|submodule hook) [ARGS...]"
         return 1

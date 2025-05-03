@@ -44,9 +44,8 @@ vim.keymap.set("n", "<C-h>", "<cmd>wincmd h<CR>", {})
 vim.keymap.set("n", "<C-j>", "<cmd>wincmd j<CR>", {})
 vim.keymap.set("n", "<C-k>", "<cmd>wincmd k<CR>", {})
 vim.keymap.set("n", "<C-l>", "<cmd>wincmd k<CR>", {})
--- Cycle through LSP warnings/errors
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, {})
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, {})
+-- enable inline diagnostics
+vim.diagnostic.config({ virtual_text = true })
 
 -- Highlight when yanking
 vim.api.nvim_create_autocmd("TextYankPost", {
