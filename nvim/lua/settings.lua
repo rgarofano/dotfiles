@@ -29,13 +29,11 @@ vim.opt.scrolloff = 10
 -- Highlight the current line
 vim.opt.cursorline = true
 
--- Set <C-c> to the command key
-vim.keymap.set('i', '<C-c>', '<Esc>', { noremap = true })
 -- Remap copy to system clipboard
 vim.keymap.set("n", "<leader>y", '"+y', {})
 vim.keymap.set("v", "<leader>y", '"+y', {})
 -- Remove search highlighting
-vim.keymap.set("n", "<C-c>", "<cmd>nohlsearch<CR>")
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 -- Cycle through quick fix list
 vim.keymap.set("n", "<leader>cn", "<cmd>cnext<CR>", {})
 vim.keymap.set("n", "<leader>cp", "<cmd>cprevious<CR>", {})
