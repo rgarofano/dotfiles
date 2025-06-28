@@ -203,7 +203,18 @@ function deploy {
     cd ~/Projects/ryangarofano
     npm run build
     scp -r dist root@ryangarofano.ca:/var/www/ryangarofano/
+    ssh root@ryangarofano.ca '\
+    cp -r /var/www/ryangarofano/dist/* /var/www/ryangarofano/ 2>/dev/null
+    rm -rf /var/www/ryangarofano/dist/
+    '
 }
+
+function ccna {
+    vared -p 'Day: ' -c day
+    ls "$HOME/CCNA/Videos" | grep "Day $day " | fzf | xargs -I {} -d "\n" mpv "$HOME/CCNA/Videos/{}"
+}
+
+nerdfetch; echo ""
 
 # enable syntax highlighting (should be near bottom)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
