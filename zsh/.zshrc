@@ -31,7 +31,14 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 # setup history file
 HISTSIZE=10000
 SAVEHIST=10000
-HISTFILE="$HOME/.cache/zsh/history"
+HISTFILE="$HOME/.zsh_history"
+setopt APPEND_HISTORY           # append, don’t overwrite, history file
+setopt HIST_IGNORE_DUPS         # ignore duplicate commands
+setopt HIST_IGNORE_ALL_DUPS     # remove old duplicates
+setopt HIST_SAVE_NO_DUPS        # don’t save duplicates
+setopt SHARE_HISTORY            # share history between sessions
+setopt INC_APPEND_HISTORY       # write command to history immediately
+setopt HIST_REDUCE_BLANKS       # remove extra blanks
 
 # aliases
 alias ll="ls -laF"
@@ -69,6 +76,9 @@ export TERM=xterm-256color
 
 # Directory for personal projects
 export PROJECTS_BASE_DIR="$HOME/Projects"
+
+# rails
+export PATH="/home/rgarofano/.local/share/gem/ruby/3.4.0/bin:$PATH"
 
 function project() {
     [[ -z $1 ]] && tmux attach-session && return 0
@@ -215,6 +225,15 @@ function ccna {
 }
 
 nerdfetch; echo ""
+
+# Load ruby env
+source /usr/share/chruby/chruby.sh
+chruby ruby
+
+function setup-tailwind {
+    bundle add tailwindcss-rails
+    rails tailwindcss:install
+}
 
 # enable syntax highlighting (should be near bottom)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

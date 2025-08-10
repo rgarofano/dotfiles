@@ -15,7 +15,7 @@ return {
         },
     },
     config = function()
-        local capabilities = require("cmp_nvim_lsp").default_capabilities()
+        local capabilities = require("blink.cmp").get_lsp_capabilities()
         local lspconfig = require("lspconfig")
         lspconfig.lua_ls.setup({
             capabilities = capabilities,
@@ -27,21 +27,13 @@ return {
                 "--fallback-style=webkit",
             },
         })
-        lspconfig.svlangserver.setup({
-            cmd = { "svlangserver" },
-            filetypes = { "bluespec" },
-            root_dir = require("lspconfig").util.root_pattern(".git", "*.bsv"),
-        })
-        lspconfig.ts_ls.setup({
-            capabilities = capabilities,
-        })
         lspconfig.tailwindcss.setup({
             capabilities = capabilities,
         })
-        lspconfig.gopls.setup({
+        lspconfig.bashls.setup({
             capabilities = capabilities,
         })
-        lspconfig.bashls.setup({
+        lspconfig.ruby_lsp.setup({
             capabilities = capabilities,
         })
         vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
