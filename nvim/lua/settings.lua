@@ -42,6 +42,10 @@ vim.keymap.set("n", "<C-h>", "<cmd>wincmd h<CR>", {})
 vim.keymap.set("n", "<C-j>", "<cmd>wincmd j<CR>", {})
 vim.keymap.set("n", "<C-k>", "<cmd>wincmd k<CR>", {})
 vim.keymap.set("n", "<C-l>", "<cmd>wincmd k<CR>", {})
+vim.keymap.set("n", "<space>tt", function ()
+    vim.cmd.split()
+    vim.cmd.term()
+end)
 -- enable inline diagnostics
 vim.diagnostic.config({ virtual_text = true })
 
@@ -52,10 +56,4 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function()
         vim.highlight.on_yank()
     end,
-})
-
-vim.filetype.add({
-    extension = {
-        bsv = "bluespec",
-    },
 })

@@ -224,8 +224,6 @@ function ccna {
     ls "$HOME/CCNA/Videos" | grep "Day $day " | fzf | xargs -I {} -d "\n" mpv "$HOME/CCNA/Videos/{}"
 }
 
-nerdfetch; echo ""
-
 # Load ruby env
 source /usr/share/chruby/chruby.sh
 chruby ruby
