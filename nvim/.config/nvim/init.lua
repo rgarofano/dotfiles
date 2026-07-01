@@ -1,7 +1,6 @@
 require("settings")
 
 vim.pack.add({
-    "https://github.com/Mofiqul/vscode.nvim",           -- theme
     "https://github.com/nvim-lua/plenary.nvim",         -- dependency
     "https://github.com/nvim-tree/nvim-web-devicons",   -- dependency
     "https://github.com/nvim-telescope/telescope.nvim", -- fancy find/grep
@@ -13,9 +12,8 @@ vim.pack.add({
 })
 
 -- theme
-local theme = require("vscode")
-theme.setup({ style = "dark", transparent = true })
-theme.load()
+vim.cmd("colorscheme koehler")
+vim.opt.termguicolors = false
 
 -- fancy find/grep
 require("telescope").setup({})

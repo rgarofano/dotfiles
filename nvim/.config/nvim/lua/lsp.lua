@@ -35,7 +35,11 @@ vim.lsp.config["clangd"] = {
         "clangd",
         "--clang-tidy",
         "--fallback-style=webkit"
-    }
+    },
+    on_attach = function(client, _)
+        -- disable additional syntax highlighting
+        client.server_capabilities.semanticTokensProvider = nil
+    end
 }
 
 vim.lsp.enable({
