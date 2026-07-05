@@ -37,9 +37,9 @@ fi
 
 update_prompt() {
     if declare -F __git_ps1 >/dev/null; then
-        PS1="\[\e[34m\]\s \v \[\e[33m\]\w \[\e[31m\]$(__git_ps1 '(%s) ')\[\e[32m\]\$ \[\e[0m\]"
+        PS1="\[\e[34m\]\h \[\e[33m\]\w \[\e[31m\]$(__git_ps1 '(%s) ')\[\e[32m\]\$ \[\e[0m\]"
     else
-        PS1="\[\e[34m\]\s \v \[\e[33m\]\w \[\e[32m\]\$ \[\e[0m\]"
+        PS1="\[\e[34m\]\h \[\e[33m\]\w \[\e[32m\]\$ \[\e[0m\]"
     fi
 }
 
