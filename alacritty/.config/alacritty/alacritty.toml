@@ -32,8 +32,8 @@ italic = { family = "FiraCode Nerd Font" }
 size = 13
 
 [window]
-padding.x = 14
-padding.y = 14
+padding.x = 8
+padding.y = 8
 decorations = "None"
 
 [keyboard]
