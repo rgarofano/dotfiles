@@ -9,6 +9,9 @@ fi
 shopt -s histappend
 export HISTCONTROL=ignoreboth:erasedups
 
+# Path
+export PATH=$PATH:$HOME/.local/bin
+
 # Aliases
 
 if command -v nvim >/dev/null 2>&1; then
