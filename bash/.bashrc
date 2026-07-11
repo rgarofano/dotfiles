@@ -32,11 +32,17 @@ fi
 
 # Prompt
 
-if [[ -f /usr/share/git/git-prompt.sh ]]; then
-    . /usr/share/git/git-prompt.sh
-    export GIT_PS1_SHOWDIRTYSTATE=1
-    export GIT_PS1_SHOWUNTRACKEDFILES=1
-fi
+for git_prompt_path in \
+    /usr/share/git-core/contrib/completion/git-prompt.sh \
+    /usr/share/git/contrib/completion/git-prompt.sh
+do
+    if [[ -f "$git_prompt_path" ]]; then
+        source "$git_prompt_path"
+        export GIT_PS1_SHOWDIRTYSTATE=1
+        export GIT_PS1_SHOWUNTRACKEDFILES=1
+        break
+    fi
+done
 
 update_prompt() {
     if declare -F __git_ps1 >/dev/null; then
