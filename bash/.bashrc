@@ -55,5 +55,3 @@ update_prompt() {
 if ! [[ $PROMPT_COMMAND =~ update_prompt$ ]]; then
     PROMPT_COMMAND="${PROMPT_COMMAND:-:}; update_prompt"
 fi
-
-fastfetch
