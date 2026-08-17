@@ -9,6 +9,7 @@ fi
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
+
 setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
@@ -20,6 +21,7 @@ NVIM_SESSION_DIR=$HOME/.local/share/nvim/sessions
 export TERM=xterm-256color
 export VISUAL=vi
 export EDITOR=$VISUAL
+bindkey -e # use default emacs bindings for shell
 
 # Path
 
@@ -46,11 +48,6 @@ zstyle ':completion:*' menu select
 zmodload zsh/complist
 compinit
 _comp_options+=(globdots)
-
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
 
 # Utilities
 
