@@ -1,13 +1,17 @@
 # Prompt
 
 if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init bash)"
+    eval "$(starship init zsh)"
 fi
 
 # History
 
-shopt -s histappend
-export HISTCONTROL=ignoreboth
+HISTFILE=~/.zsh_history
+HISTSIZE=100000
+SAVEHIST=100000
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
 
 # Environment
 
@@ -34,6 +38,19 @@ fi
 if command -v mpv >/dev/null 2>&1; then
     alias mpv='mpv --save-position-on-quit=yes'
 fi
+
+# Completions
+
+autoload -U compinit
+zstyle ':completion:*' menu select
+zmodload zsh/complist
+compinit
+_comp_options+=(globdots)
+
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
 
 # Utilities
 
