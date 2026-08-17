@@ -29,8 +29,16 @@ vim.lsp.config["clangd"] = {
 vim.lsp.config["lua_ls"] = {
     settings = {
         Lua = {
+            workspace = {
+                checkThirdParty = false,
+                library = {
+                    "/run/current-system/sw/share/hypr/stubs",
+                    vim.env.VIMRUNTIME
+                },
+            },
             diagnostics = {
                 globals = {
+                    "hl",
                     "vim"
                 }
             }
