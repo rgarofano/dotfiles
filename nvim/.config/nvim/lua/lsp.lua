@@ -18,6 +18,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 })
 
+vim.lsp.config["clangd"] = {
+    cmd = {
+        "clangd",
+        "--clang-tidy",
+        "--fallback-style=webkit"
+    }
+}
+
 vim.lsp.config["lua_ls"] = {
     settings = {
         Lua = {
@@ -30,19 +38,7 @@ vim.lsp.config["lua_ls"] = {
     }
 }
 
-vim.lsp.config["clangd"] = {
-    cmd = {
-        "clangd",
-        "--clang-tidy",
-        "--fallback-style=webkit"
-    },
-    on_attach = function(client, _)
-        -- disable additional syntax highlighting
-        client.server_capabilities.semanticTokensProvider = nil
-    end
-}
-
 vim.lsp.enable({
-    "lua_ls",
-    "clangd"
+    "clangd",
+    "lua_ls"
 })
