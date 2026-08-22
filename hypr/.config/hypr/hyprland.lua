@@ -34,7 +34,7 @@ hl.monitor({
 local terminal        = "ghostty"
 local fileManager     = "dolphin"
 local menu            = "rofi -show drun"
-local statusBar       = "waybar"
+local statusBar       = "quickshell"
 local notifier        = "mako"
 local blueLightFilter = "hyprsunset"
 
