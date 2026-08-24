@@ -40,7 +40,7 @@ PopupWindow {
             spacing: 10
 
             Text {
-                text: "Output"
+                text: "  Output Source"
                 color: Theme.foreground
                 font.family: Theme.fontFamily
                 font.pixelSize: 18
@@ -60,7 +60,7 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
 
-                        width: parent.width
+                        width: parent.width - 10
                         elide: Text.ElideRight
                         maximumLineCount: 1
 
