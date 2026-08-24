@@ -7,5 +7,5 @@ QtObject {
     readonly property int trayItemWidth: 50
     readonly property int trayItemSpacing: 24
     readonly property int dateTimeWidth: 90
-    readonly property int panelWidth: 350
+    readonly property int panelWidth: 400
 }

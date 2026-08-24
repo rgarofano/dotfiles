@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Services.Pipewire
 import QtQuick
+import QtQuick.Layouts
 
 import ".."
 
@@ -32,7 +33,7 @@ PopupWindow {
         border.width: 2
         border.color: Theme.blue
 
-        Column {
+        ColumnLayout {
             id: content
 
             anchors.fill: parent
@@ -40,7 +41,8 @@ PopupWindow {
             spacing: 10
 
             Text {
-                text: "  Output Source"
+                Layout.alignment: Qt.AlignHCenter
+                text: "  Output Device"
                 color: Theme.foreground
                 font.family: Theme.fontFamily
                 font.pixelSize: 18
@@ -48,19 +50,19 @@ PopupWindow {
             }
 
             Repeater {
-                model: root.sinks
+                model: root.outputs
 
                 Rectangle {
                     required property var modelData 
 
                     width: parent.width
-                    height: 45
+                    height: 35
                     color: modelData === Pipewire.defaultAudioSink ? Theme.foreground : "transparent"
 
                     Text {
                         anchors.centerIn: parent
 
-                        width: parent.width - 10
+                        width: implicitWidth > parent.width - 10 ? parent.width - 10 : implicitWidth
                         elide: Text.ElideRight
                         maximumLineCount: 1
 
@@ -77,23 +79,71 @@ PopupWindow {
                     }
                 }
             }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 10
+                text: " Input Device"
+                color: Theme.foreground
+                font.family: Theme.fontFamily
+                font.pixelSize: 18
+                font.bold: true
+            }
+
+            Repeater {
+                model: root.inputs
+
+                Rectangle {
+                    required property var modelData
+
+                    width: parent.width
+                    height: 35
+                    color: modelData === Pipewire.defaultAudioSource ? Theme.foreground : "transparent"
+
+                    Text {
+                        anchors.centerIn: parent
+
+                        width: implicitWidth > parent.width - 10 ? parent.width - 10 : implicitWidth
+                        elide: Text.ElideRight
+                        maximumLineCount: 1
+
+                        text: modelData.description
+                        color: modelData === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSize
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onClicked: Pipewire.preferredDefaultAudioSource = modelData
+                    }
+                }
+            }
         }
     }
 
-    property var sinks: []
+    property var outputs: []
+    property var inputs: []
 
-    function updateSinks() {
-        const result = []
+    function updateDevices() {
+        const outputs = []
+        const inputs = []
         for (const node of Pipewire.nodes.values) {
-            if (node.audio && node.isSink && !node.isStream) {
-                result.push(node)
+            if (node.audio && !node.isStream) {
+                if (node.isSink) {
+                    outputs.push(node)
+                } else {
+                    inputs.push(node)
+                }
             }
         }
-        root.sinks = result
+        root.outputs = outputs
+        root.inputs = inputs
     }
 
     Component.onCompleted: {
-        updateSinks()
+        updateDevices()
     }
 
     Connections {
@@ -101,7 +151,7 @@ PopupWindow {
 
         function onReadyChanged() {
             if (Pipewire.ready)
-                root.updateSinks()
+                root.updateDevices()
         }
     }
 }
