@@ -8,27 +8,27 @@ Repeater {
     model: Hyprland.workspaces
 
     Rectangle {
-        required property var modelData
+        property var workspace: modelData
+
         width: 30
         height: Dimensions.barHeight
-
-        visible: modelData != null
-        color: modelData.focused ? Theme.brightBlack : Theme.background
+        color: workspace.focused ? Theme.brightBlack : Theme.background
 
         Text {
             anchors.centerIn: parent
-            text: modelData?.id
+            text: workspace.id
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
-            color: modelData.focused ? Theme.foreground : Theme.brightBlack
+            color: workspace.focused ? Theme.foreground : Theme.brightBlack
         }
 
         MouseArea {
+            property var workspace: modelData
+
             anchors.fill: parent
+
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                Hyprland.dispatch('hl.dsp.focus({ workspace = "' + modelData.id + '" })')
-            }
+            onClicked: workspace.activate()
         }
     }
 
