@@ -14,7 +14,6 @@ PopupWindow {
     color: "transparent"
 
     property var barWindow
-    property var audio
 
     anchor {
         window: root.barWindow
@@ -29,6 +28,7 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
+
         color: Theme.background
         border.width: 2
         border.color: Theme.blue
@@ -38,11 +38,12 @@ PopupWindow {
 
             anchors.fill: parent
             anchors.margins: 20
+
             spacing: 10
 
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                text: "  Output Device"
+                text: "Output Device"
                 color: Theme.foreground
                 font.family: Theme.fontFamily
                 font.pixelSize: 18
@@ -50,14 +51,16 @@ PopupWindow {
             }
 
             Repeater {
-                model: root.outputs
+                model: Pipewire.nodes
 
                 Rectangle {
-                    required property var modelData 
+                    property var device: modelData 
+
+                    visible: device.audio && device.isSink && !device.isStream
 
                     width: parent.width
                     height: 35
-                    color: modelData === Pipewire.defaultAudioSink ? Theme.foreground : "transparent"
+                    color: device === Pipewire.defaultAudioSink ? Theme.foreground : "transparent"
 
                     Text {
                         anchors.centerIn: parent
@@ -66,23 +69,66 @@ PopupWindow {
                         elide: Text.ElideRight
                         maximumLineCount: 1
 
-                        text: modelData.description
-                        color: modelData === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
+                        text: device.description
+                        color: device === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSize
                     }
 
                     MouseArea {
+                        property var device: modelData
+
                         anchors.fill: parent
 
-                        onClicked: Pipewire.preferredDefaultAudioSink = modelData
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Pipewire.preferredDefaultAudioSink = device
                     }
+                }
+            }
+
+            RowLayout {
+                id: slider
+
+                property var sink: Pipewire.defaultAudioSink
+                property bool muted: sink?.audio?.muted ?? true
+                property real volume: muted ? 0 : sink?.audio?.volume ?? 0
+
+                Layout.topMargin: 10
+                Layout.fillWidth: true
+
+                spacing: 15
+
+                Text {
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 18
+                    text: slider.sink && !slider.muted ? " " : ""
+                    color: Theme.foreground
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 10
+                    color: Theme.brightBlack
+
+                    Rectangle {
+                        width: Math.round(slider.volume * parent.width)
+                        height: parent.height
+                        color: Theme.foreground
+                    }
+                }
+
+                Text {
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 18
+                    text: `${Math.round(slider.volume * 100)}%`
+                    color: Theme.foreground
                 }
             }
 
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 10
+                Layout.topMargin: 20
+
                 text: " Input Device"
                 color: Theme.foreground
                 font.family: Theme.fontFamily
@@ -91,14 +137,16 @@ PopupWindow {
             }
 
             Repeater {
-                model: root.inputs
+                model: Pipewire.nodes
 
                 Rectangle {
-                    required property var modelData
+                    property var device: modelData
+
+                    visible: device.audio && !device.isSink && !device.isStream
 
                     width: parent.width
                     height: 35
-                    color: modelData === Pipewire.defaultAudioSource ? Theme.foreground : "transparent"
+                    color: device === Pipewire.defaultAudioSource ? Theme.foreground : "transparent"
 
                     Text {
                         anchors.centerIn: parent
@@ -107,8 +155,8 @@ PopupWindow {
                         elide: Text.ElideRight
                         maximumLineCount: 1
 
-                        text: modelData.description
-                        color: modelData === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
+                        text: device.description
+                        color: device === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSize
                     }
@@ -116,42 +164,10 @@ PopupWindow {
                     MouseArea {
                         anchors.fill: parent
 
-                        onClicked: Pipewire.preferredDefaultAudioSource = modelData
+                        onClicked: Pipewire.preferredDefaultAudioSource = device
                     }
                 }
             }
-        }
-    }
-
-    property var outputs: []
-    property var inputs: []
-
-    function updateDevices() {
-        const outputs = []
-        const inputs = []
-        for (const node of Pipewire.nodes.values) {
-            if (node.audio && !node.isStream) {
-                if (node.isSink) {
-                    outputs.push(node)
-                } else {
-                    inputs.push(node)
-                }
-            }
-        }
-        root.outputs = outputs
-        root.inputs = inputs
-    }
-
-    Component.onCompleted: {
-        updateDevices()
-    }
-
-    Connections {
-        target: Pipewire
-
-        function onReadyChanged() {
-            if (Pipewire.ready)
-                root.updateDevices()
         }
     }
 }
