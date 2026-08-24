@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 
@@ -6,7 +7,8 @@ import ".."
 
 Item {
     id: root
-    width: 50
+
+    width: Dimensions.trayItemWidth
 
     property real output: 0
     property double prevTotal: 0

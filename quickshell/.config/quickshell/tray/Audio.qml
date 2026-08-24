@@ -1,14 +1,15 @@
 import Quickshell
 import Quickshell.Services.Pipewire
 import QtQuick
+import QtQuick.Effects
 
 import ".."
 
 Item {
     id: root
 
-    width: 50
-    height: 30
+    width: Dimensions.trayItemWidth
+    height: Dimensions.barHeight
 
     property var panel
 
@@ -21,6 +22,7 @@ Item {
     }
 
     Text {
+        id: audioText
         anchors.centerIn: parent
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
@@ -30,6 +32,21 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: root.panel.visible = !root.panel.visible
+        onClicked: () => {
+            root.panel.visible = !root.panel.visible
+            glowEffect.shadowEnabled = !glowEffect.shadowEnabled
+        }
+    }
+
+    MultiEffect {
+        id: glowEffect
+        source: audioText
+        anchors.fill: audioText
+        shadowEnabled: false
+        shadowColor: "white"
+        shadowBlur: 1.0
+        shadowOpacity: 1.0
+        shadowHorizontalOffset: 0
+        shadowVerticalOffset: 0
     }
 }

@@ -16,7 +16,7 @@ PanelWindow {
     }
 
     color: Theme.background
-    implicitHeight: 30
+    implicitHeight: Dimensions.barHeight
 
     RowLayout {
         anchors.left: parent.left 
@@ -41,7 +41,7 @@ PanelWindow {
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 16
 
-        spacing: 24
+        spacing: Dimensions.trayItemSpacing
 
         Audio { panel: audioPanel }
         CpuPercentage {}

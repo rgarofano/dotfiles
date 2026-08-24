@@ -7,15 +7,22 @@ import ".."
 PopupWindow {
     id: root
 
-    implicitWidth: 500
+    implicitWidth: Dimensions.panelWidth
     implicitHeight: content.implicitHeight + 40
 
     color: "transparent"
 
     property var barWindow
+    property var audio
+
     anchor {
         window: root.barWindow
-        rect.x: root.barWindow.width - root.width
+        rect.x:
+            (root.barWindow.width
+                - Dimensions.dateTimeWidth
+                - 2.5 * Dimensions.trayItemWidth
+                - 3 * Dimensions.trayItemSpacing)
+            - (root.width / 2)
         rect.y: root.barWindow.height
     }
 

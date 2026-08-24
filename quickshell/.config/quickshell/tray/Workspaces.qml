@@ -10,7 +10,7 @@ Repeater {
     Rectangle {
         required property var modelData
         width: 30
-        height: 30
+        height: Dimensions.barHeight
 
         visible: modelData != null
         color: modelData.focused ? Theme.brightBlack : Theme.background

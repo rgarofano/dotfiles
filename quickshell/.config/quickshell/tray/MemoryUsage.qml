@@ -6,7 +6,7 @@ import ".."
 
 Item {
     id: root
-    width: 50
+    width: Dimensions.trayItemWidth
 
     property real output: 0
 
