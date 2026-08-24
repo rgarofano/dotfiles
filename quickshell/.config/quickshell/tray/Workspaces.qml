@@ -16,10 +16,19 @@ Repeater {
 
         Text {
             anchors.centerIn: parent
+
             text: workspace.id
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
             color: workspace.focused ? Theme.foreground : Theme.brightBlack
+
+            Behavior on color {
+                ColorAnimation { duration: 150 }
+            }
+        }
+
+        Behavior on color {
+            ColorAnimation { duration: 150 }
         }
 
         MouseArea {
