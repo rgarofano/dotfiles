@@ -41,7 +41,7 @@ PanelWindow {
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 16
 
-        spacing: 30
+        spacing: 24
 
         Audio { panel: audioPanel }
         CpuPercentage {}

@@ -6,7 +6,7 @@ import ".."
 
 Item {
     id: root
-    width: cpuText.width
+    width: 50
 
     property real output: 0
     property double prevTotal: 0
@@ -47,11 +47,10 @@ Item {
     }
 
     Text {
-        id: cpuText
         anchors.centerIn: parent
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
-        color: Theme.blue
+        color: root.ouput >= 80 ? Theme.red : Theme.blue
         text: `  ${Math.round(root.output)}%`
     }
 }

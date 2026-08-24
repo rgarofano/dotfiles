@@ -4,7 +4,7 @@ import Quickshell
 import ".."
 
 Item {
-    width: dateText.width
+    width: 150
 
     SystemClock {
         id: clock
@@ -12,8 +12,7 @@ Item {
     }
 
     Text {
-        id: dateText
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.centerIn: parent
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
         color: Theme.foreground

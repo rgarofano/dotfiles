@@ -6,7 +6,7 @@ import ".."
 
 Item {
     id: root
-    width: memText.width
+    width: 50
 
     property real output: 0
 
@@ -18,9 +18,9 @@ Item {
     function updateMem() {
         memFile.reload()
         const data = memFile.text()
-        const totalKb = data.match(/^MemTotal:\s+(\d+)/m)[1]
-        const availableKb = data.match(/^MemAvailable:\s+(\d+)/m)[1]
-        output = (Number(totalKb) - Number(availableKb)) / 1000000
+        const totalKb = Number(data.match(/^MemTotal:\s+(\d+)/m)[1])
+        const availableKb = Number(data.match(/^MemAvailable:\s+(\d+)/m)[1])
+        output = ((totalKb - availableKb) / totalKb) * 100
     }
 
     Timer {
@@ -32,11 +32,10 @@ Item {
     }
 
     Text {
-        id: memText
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.centerIn: parent
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
-        color: Theme.green
-        text: `  ${root.output.toFixed(1)} GB`
+        color: root.output >= 80 ? Theme.red : Theme.green
+        text: `  ${Math.round(root.output)}%`
     }
 }
