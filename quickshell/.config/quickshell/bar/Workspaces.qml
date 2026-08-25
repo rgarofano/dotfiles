@@ -19,7 +19,7 @@ Repeater {
 
             text: workspace.id
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeNormal
             color: workspace.focused ? Theme.foreground : Theme.brightBlack
 
             Behavior on color {

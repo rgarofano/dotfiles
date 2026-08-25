@@ -7,7 +7,7 @@ Text {
     property var panel
 
     font.family: Theme.fontFamily
-    font.pixelSize: 18
+    font.pixelSize: Theme.fontSizeLarge
     text: ""
     color: panel.visible ? Theme.blue : Theme.foreground
 

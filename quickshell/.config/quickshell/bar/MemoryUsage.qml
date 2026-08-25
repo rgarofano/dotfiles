@@ -34,7 +34,7 @@ Item {
     Text {
         anchors.centerIn: parent
         font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
+        font.pixelSize: Theme.fontSizeNormal
         color: root.output >= 80 ? Theme.red : Theme.green
         text: `  ${Math.round(root.output)}%`
     }

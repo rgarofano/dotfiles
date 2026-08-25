@@ -23,5 +23,6 @@ QtObject {
     readonly property color brightWhite: "#e4e4e5"
 
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
-    readonly property int fontSize: 14
+    readonly property int fontSizeNormal: 14
+    readonly property int fontSizeLarge: 18
 }

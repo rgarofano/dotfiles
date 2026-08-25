@@ -41,7 +41,7 @@ PopupWindow {
                 text: "Output Device"
                 color: Theme.foreground
                 font.family: Theme.fontFamily
-                font.pixelSize: 18
+                font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
             }
 
@@ -69,7 +69,7 @@ PopupWindow {
                         text: device.description
                         color: device === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSize
+                        font.pixelSize: Theme.fontSizeNormal
                     }
 
                     MouseArea {
@@ -101,7 +101,7 @@ PopupWindow {
 
                 Text {
                     font.family: Theme.fontFamily
-                    font.pixelSize: 18
+                    font.pixelSize: Theme.fontSizeLarge
                     text: slider.sink && !slider.muted ? " " : ""
                     color: Theme.foreground
                 }
@@ -120,7 +120,7 @@ PopupWindow {
 
                 Text {
                     font.family: Theme.fontFamily
-                    font.pixelSize: 18
+                    font.pixelSize: Theme.fontSizeLarge
                     text: `${Math.round(slider.volume * 100)}%`
                     color: Theme.foreground
                 }
@@ -133,7 +133,7 @@ PopupWindow {
                 text: " Input Device"
                 color: Theme.foreground
                 font.family: Theme.fontFamily
-                font.pixelSize: 18
+                font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
             }
 
@@ -159,7 +159,7 @@ PopupWindow {
                         text: device.description
                         color: device === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSize
+                        font.pixelSize: Theme.fontSizeNormal
                     }
 
                     MouseArea {
