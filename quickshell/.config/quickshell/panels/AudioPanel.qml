@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import ".."
 
 PopupWindow {
-    id: root
+    id: panel
 
     implicitWidth: Dimensions.panelWidth
     implicitHeight: content.implicitHeight + 40
@@ -16,14 +16,9 @@ PopupWindow {
     property var barWindow
 
     anchor {
-        window: root.barWindow
-        rect.x:
-            (root.barWindow.width
-                - Dimensions.dateTimeWidth
-                - 2.5 * Dimensions.trayItemWidth
-                - 3 * Dimensions.trayItemSpacing)
-            - (root.width / 2)
-        rect.y: root.barWindow.height
+        window: panel.barWindow
+        rect.x: panel.barWindow.width - (panel.width / 2)
+        rect.y: panel.barWindow.height
     }
 
     Rectangle {
@@ -54,6 +49,8 @@ PopupWindow {
                 model: Pipewire.nodes
 
                 Rectangle {
+                    id: audioDevice
+
                     property var device: modelData 
 
                     visible: device.audio && device.isSink && !device.isStream
@@ -82,6 +79,10 @@ PopupWindow {
 
                         cursorShape: Qt.PointingHandCursor
                         onClicked: Pipewire.preferredDefaultAudioSink = device
+                    }
+
+                    PwObjectTracker {
+                        objects: [audioDevice.device]
                     }
                 }
             }
@@ -170,4 +171,5 @@ PopupWindow {
             }
         }
     }
+
 }
