@@ -6,6 +6,7 @@ import ".."
 Text {
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSizeNormal
+    font.weight: 600
     color: Theme.foreground
     text: Qt.formatDateTime(clock.date, "ddd h:mm AP")
 
