@@ -8,11 +8,6 @@ import ".."
 PopupWindow {
     id: panel
 
-    implicitWidth: Dimensions.panelWidth
-    implicitHeight: content.implicitHeight + 40
-
-    color: "transparent"
-
     property var barWindow
 
     anchor {
@@ -20,6 +15,11 @@ PopupWindow {
         rect.x: panel.barWindow.width - (panel.width / 2)
         rect.y: panel.barWindow.height
     }
+
+    implicitWidth: Dimensions.panelWidth
+    implicitHeight: content.implicitHeight + 40
+
+    color: "transparent"
 
     Rectangle {
         anchors.fill: parent

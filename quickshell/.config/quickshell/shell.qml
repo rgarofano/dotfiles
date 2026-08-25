@@ -25,9 +25,12 @@ PanelWindow {
         Item { Layout.fillWidth: true }
 
         RowLayout {
-            Layout.rightMargin: 16
+            Layout.rightMargin: 24
+
+            spacing: 16
 
             Audio { panel: audioPanel }
+            SystemResources { panel: systemPanel }
         }
     }
 
@@ -37,6 +40,11 @@ PanelWindow {
 
     AudioPanel {
         id: audioPanel
+        barWindow: bar
+    }
+
+    SystemPanel {
+        id: systemPanel
         barWindow: bar
     }
 }

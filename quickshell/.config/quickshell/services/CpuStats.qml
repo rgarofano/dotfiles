@@ -1,16 +1,13 @@
-import QtQuick
-import QtQuick.Effects
+pragma Singleton
+
 import Quickshell
 import Quickshell.Io
+import QtQuick
 
-import ".."
-
-Item {
+Singleton {
     id: root
 
-    width: Dimensions.trayItemWidth
-
-    property real output: 0
+    property real percentUsed: 0
     property double prevTotal: 0
     property double prevIdle: 0
 
@@ -33,7 +30,7 @@ Item {
         if (prevTotal > 0) {
             const idleDelta = idle - prevIdle
             const totalDelta = total - prevTotal
-            output = ((totalDelta - idleDelta) / totalDelta) * 100
+            percentUsed = ((totalDelta - idleDelta) / totalDelta) * 100
         }
 
         prevIdle = idle
@@ -46,13 +43,5 @@ Item {
         running: true
         triggeredOnStart: true
         onTriggered: root.updateCpu()
-    }
-
-    Text {
-        anchors.centerIn: parent
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeNormal
-        color: root.ouput >= 80 ? Theme.red : Theme.blue
-        text: `  ${Math.round(root.output)}%`
     }
 }
