@@ -1,8 +1,8 @@
 vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("lsp.format", {}),
     callback = function(args)
-        -- Format on save
         local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+        -- Format on save
         if not client:supports_method("textDocument/willSaveWaitUntil")
             and client:supports_method("textDocument/formatting") then
             vim.api.nvim_create_autocmd("BufWritePre", {
@@ -13,6 +13,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
                 end,
             })
         end
+        -- Keymaps
         vim.keymap.set("n", "gd", vim.lsp.buf.definition)
         vim.diagnostic.config({ virtual_text = true })
     end

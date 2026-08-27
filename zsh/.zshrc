@@ -16,8 +16,7 @@ setopt HIST_IGNORE_SPACE
 
 # Environment
 
-NVIM_SERVERS_DIR=$HOME/.local/share/nvim/servers
-
+export NVIM_SERVERS_DIR=$HOME/.local/share/nvim/servers
 export TERM=xterm-256color
 export VISUAL=vi
 export EDITOR=$VISUAL
@@ -25,7 +24,7 @@ bindkey -e # use default emacs bindings for shell
 
 # Path
 
-export PATH=$PATH:$HOME/.config/emacs/bin
+export PATH=$PATH:$HOME/.local/bin:$HOME/.config/emacs/bin
 
 # Aliases
 
