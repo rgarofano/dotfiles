@@ -52,3 +52,5 @@ case "$1" in
     *)
         echo "WARNING: light/dark preference is not being set for this theme" >&2
 esac
+
+awww img "$THEME_DIR/wallpaper.png" --transition-type random --transition-duration 0.5

@@ -38,6 +38,7 @@ local menu            = "rofi -show drun"
 local statusBar       = "quickshell"
 local notifier        = "mako"
 local blueLightFilter = "hyprsunset"
+local wallpapers      = "awww-daemon"
 
 -------------------
 ---- AUTOSTART ----
@@ -57,6 +58,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd(statusBar)
     hl.exec_cmd(blueLightFilter)
     hl.exec_cmd(notifier)
+    hl.exec_cmd(wallpapers)
 end)
 
 
