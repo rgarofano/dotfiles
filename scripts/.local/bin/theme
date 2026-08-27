@@ -40,6 +40,8 @@ kill -s USR2 $(pgrep ghostty)
 
 cp "$THEME_DIR/quickshell/Theme.qml" "$HOME/.config/quickshell"
 
+cp "$THEME_DIR/hypr/theme.lua" "$HOME/.config/hypr/"
+
 case "$1" in
     carbonfox)
         gsettings set org.gnome.desktop.interface color-scheme prefer-dark

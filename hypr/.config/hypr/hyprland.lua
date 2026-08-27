@@ -14,6 +14,7 @@
 -- Create your files separately and then require them like this:
 -- require("myColors")
 
+local theme = require("theme")
 
 ------------------
 ---- MONITORS ----
@@ -101,8 +102,8 @@ hl.config({
         border_size      = 2,
 
         col              = {
-            active_border   = "rgba(8aadf4ee)",
-            inactive_border = "rgba(595959aa)",
+            active_border   = "rgba(" .. theme.blue .. "ee)",
+            inactive_border = "rgba(" .. theme.brightBlack .. "aa)",
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
