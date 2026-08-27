@@ -18,6 +18,7 @@ THEME_DIR=$DOTFILES_DIR/themes/$1
 if [[ ! -d $THEME_DIR ]]; then
     echo "Invalid theme: $1" >&2
     echo "Themes: $(IFS=','; echo "${themes[*]}")"
+    exit 1
 fi
 
 cp "$THEME_DIR/nvim/theme.lua" "$HOME/.config/nvim/lua/"
@@ -36,3 +37,16 @@ done
 
 cp "$THEME_DIR/ghostty/config.ghostty" "$HOME/.config/ghostty/"
 kill -s USR2 $(pgrep ghostty)
+
+cp "$THEME_DIR/quickshell/Theme.qml" "$HOME/.config/quickshell"
+
+case "$1" in
+    carbonfox)
+        gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+        ;;
+    latte)
+        gsettings set org.gnome.desktop.interface color-scheme prefer-light
+        ;;
+    *)
+        echo "WARNING: light/dark preference is not being set for this theme" >&2
+esac
