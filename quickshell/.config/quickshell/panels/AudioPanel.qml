@@ -34,7 +34,7 @@ PopupWindow {
             anchors.fill: parent
             anchors.margins: 20
 
-            spacing: 10
+            spacing: 15
 
             Text {
                 Layout.alignment: Qt.AlignHCenter
@@ -45,44 +45,47 @@ PopupWindow {
                 font.bold: true
             }
 
-            Repeater {
-                model: Pipewire.nodes
+            Column {
+                Layout.fillWidth: true
+                spacing: 0
 
-                Rectangle {
-                    id: audioDevice
+                Repeater {
+                    model: Pipewire.nodes.values.filter(node => node.audio && node.isSink && !node.isStream)
 
-                    property var device: modelData 
+                    Rectangle {
+                        id: audioDevice
 
-                    visible: device.audio && device.isSink && !device.isStream
+                        property var device: modelData 
 
-                    width: parent.width
-                    height: 35
-                    color: device === Pipewire.defaultAudioSink ? Theme.foreground : "transparent"
+                        width: parent.width
+                        height: 35
+                        color: device === Pipewire.defaultAudioSink ? Theme.foreground : "transparent"
 
-                    Text {
-                        anchors.centerIn: parent
+                        Text {
+                            anchors.centerIn: parent
 
-                        width: implicitWidth > parent.width - 10 ? parent.width - 10 : implicitWidth
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
+                            width: Math.min(parent.width - 10, implicitWidth)
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
 
-                        text: device.description
-                        color: device === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeNormal
-                    }
+                            text: device.description
+                            color: device === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
 
-                    MouseArea {
-                        property var device: modelData
+                        MouseArea {
+                            property var device: modelData
 
-                        anchors.fill: parent
+                            anchors.fill: parent
 
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: Pipewire.preferredDefaultAudioSink = device
-                    }
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Pipewire.preferredDefaultAudioSink = device
+                        }
 
-                    PwObjectTracker {
-                        objects: [audioDevice.device]
+                        PwObjectTracker {
+                            objects: [audioDevice.device]
+                        }
                     }
                 }
             }
@@ -94,7 +97,6 @@ PopupWindow {
                 property bool muted: sink?.audio?.muted ?? true
                 property real volume: muted ? 0 : sink?.audio?.volume ?? 0
 
-                Layout.topMargin: 10
                 Layout.fillWidth: true
 
                 spacing: 15
@@ -137,39 +139,41 @@ PopupWindow {
                 font.bold: true
             }
 
-            Repeater {
-                model: Pipewire.nodes
+            Column {
+                Layout.fillWidth: true
+                spacing: 0
 
-                Rectangle {
-                    property var device: modelData
+                Repeater {
+                    model: Pipewire.nodes.values.filter(node => node.audio && !node.isSink && !node.isStream)
 
-                    visible: device.audio && !device.isSink && !device.isStream
+                    Rectangle {
+                        property var device: modelData
 
-                    width: parent.width
-                    height: 35
-                    color: device === Pipewire.defaultAudioSource ? Theme.foreground : "transparent"
+                        width: parent.width
+                        height: 35
+                        color: device === Pipewire.defaultAudioSource ? Theme.foreground : "transparent"
 
-                    Text {
-                        anchors.centerIn: parent
+                        Text {
+                            anchors.centerIn: parent
 
-                        width: implicitWidth > parent.width - 10 ? parent.width - 10 : implicitWidth
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
+                            width: Math.min(parent.width - 10, implicitWidth)
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
 
-                        text: device.description
-                        color: device === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeNormal
-                    }
+                            text: device.description
+                            color: device === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
 
-                    MouseArea {
-                        anchors.fill: parent
+                        MouseArea {
+                            anchors.fill: parent
 
-                        onClicked: Pipewire.preferredDefaultAudioSource = device
+                            onClicked: Pipewire.preferredDefaultAudioSource = device
+                        }
                     }
                 }
             }
         }
     }
-
 }
