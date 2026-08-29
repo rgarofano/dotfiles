@@ -7,25 +7,12 @@ vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 -- Line numbers
 vim.opt.number = true
--- Line Wrapping
-vim.opt.breakindent = true
 -- Save undo history
 vim.opt.undofile = true
--- Case-insensitive searching
--- Except when one or more capital letters are in the search
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
 -- Show markers for LSP errors
 vim.opt.signcolumn = "yes"
 -- Decrease update time
 vim.opt.updatetime = 250
--- Decrease mapped sequence wait time
--- Displays which-key popup sooner
-vim.opt.timeoutlen = 300
--- Minimum number of lines above and below the cursor
-vim.opt.scrolloff = 10
--- Remove search highlighting
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 -- Highlight when yanking
 vim.api.nvim_create_autocmd("TextYankPost", {
     desc = "Highlight when yanking (copying) text",
@@ -34,15 +21,25 @@ vim.api.nvim_create_autocmd("TextYankPost", {
         vim.highlight.on_yank()
     end,
 })
--- Cycle through quick fix list easier
-vim.keymap.set("n", "<C-n>", "<cmd>cnext<Enter>zz")
-vim.keymap.set("n", "<C-p>", "<cmd>cprevious<Enter>zz")
--- Better page jumping
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true })
-vim.keymap.set("n", "<C-u>", "<C-u>zz", { noremap = true })
--- Copying to system clipboard
-vim.keymap.set("v", "<C-c>", '"+y')
--- Pasting from system clipboard
-vim.keymap.set("i", "<C-v>", "<C-r>+")
--- Remap visual block mode since I'm using Ctrl+v for paste
-vim.keymap.set("n", "<leader>v", "<C-v>", { noremap = true })
+-- Include files in sub directories when tab completing :find
+vim.opt.path = "**"
+-- Maximum scrollback in terminals
+vim.opt.scrollback = 1000000
+-- Leave terminal mode easily
+vim.keymap.set("t", "<C-[><C-[>", "<C-\\><C-n>")
+-- Use terminal mode by default
+vim.api.nvim_create_autocmd({ "TermOpen", "BufEnter", "WinEnter" }, {
+    pattern = "term://*",
+    command = "startinsert"
+})
+-- Operate on tabs and windows in terminal mode
+vim.keymap.set("t", "<C-w>h", "<cmd>wincmd h<CR>")
+vim.keymap.set("t", "<C-w>j", "<cmd>wincmd j<CR>")
+vim.keymap.set("t", "<C-w>k", "<cmd>wincmd k<CR>")
+vim.keymap.set("t", "<C-w>l", "<cmd>wincmd l<CR>")
+vim.keymap.set("t", "<C-w>T", "<cmd>wincmd T<CR>")
+for i = 1, 9 do
+    vim.keymap.set({ "n", "t" }, "<C-w>" .. i, "<C-\\><C-n>" .. i .. "gt")
+end
+-- Unified clipboard
+vim.opt.clipboard = "unnamedplus"
