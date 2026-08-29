@@ -31,6 +31,7 @@ PanelWindow {
 
             Audio { panel: audioPanel }
             SystemResources { panel: systemPanel }
+            Theme { panel: themePanel }
         }
     }
 
@@ -45,6 +46,11 @@ PanelWindow {
 
     SystemPanel {
         id: systemPanel
+        barWindow: bar
+    }
+
+    ThemePanel {
+        id: themePanel
         barWindow: bar
     }
 }

@@ -3,6 +3,8 @@ pragma Singleton
 import QtQuick
 
 QtObject {
+    readonly property string name: "Carbon Fox"
+
     readonly property color background: "#161616"
     readonly property color foreground: "#f2f4f8"
     readonly property color black: "#282828"
