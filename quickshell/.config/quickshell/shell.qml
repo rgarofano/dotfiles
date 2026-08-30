@@ -31,7 +31,7 @@ PanelWindow {
 
             Audio { panel: audioPanel }
             SystemResources { panel: systemPanel }
-            Theme { panel: themePanel }
+            ThemeSelect { panel: themePanel }
         }
     }
 

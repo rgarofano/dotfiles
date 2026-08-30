@@ -72,7 +72,7 @@ PopupWindow {
                             anchors.fill: parent
                             
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: Quickshell.execDetached(["theme", modelData])
+                            onClicked: Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, modelData])
                         }
                     }
                 }
