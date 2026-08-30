@@ -1,22 +1,25 @@
 import Quickshell
+import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 
 import ".."
 
 PopupWindow {
-    id: panel
+    id: themePanel
 
+    property var themes: ["Carbon Fox", "Catppuccin Latte"]
     property var barWindow
 
     anchor {
-        window: panel.barWindow
-        rect.x: panel.barWindow.width - (panel.width / 2)
-        rect.y: panel.barWindow.height
+        window: themePanel.barWindow
+        rect.x: themePanel.barWindow.width - (themePanel.width / 2)
+        rect.y: themePanel.barWindow.height
     }
 
     implicitWidth: Dimensions.panelWidth
-    implicitHeight: content.implicitHeight + 40
+    implicitHeight: themes.length * themeList.contentHeight
+    grabFocus: true
 
     color: "transparent"
 
@@ -45,38 +48,63 @@ PopupWindow {
                 font.weight: 600
             }
 
-            Column {
+            ListView {
+                id: themeList
+
                 Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 5
 
-                Repeater {
-                    model: ["Carbon Fox", "Catppuccin Latte"]
+                focus: true
+                currentIndex: 0
+                model: themes
 
-                    Rectangle {
-                        width: parent.width
-                        height: 35
-                        color: modelData === Theme.name ? Theme.foreground : "transparent"
+                delegate: Rectangle {
+                    width: parent.width
+                    height: 35
+                    color: modelData === Theme.name ? Theme.foreground : ListView.isCurrentItem ? Theme.brightBlack : "transparent"
+                    
+                    Text {
+                        anchors.centerIn: parent
+
+                        width: Math.min(parent.width - 10, implicitWidth)
+                        elide: Text.ElideRight
+                        maximumLineCount: 1
+                        text: modelData
+                        color: modelData === Theme.name ? Theme.background : Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeLarge
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
                         
-                        Text {
-                            anchors.centerIn: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, modelData])
+                    }
+                }
 
-                            width: Math.min(parent.width - 10, implicitWidth)
-                            elide: Text.ElideRight
-                            maximumLineCount: 1
-                            text: modelData
-                            color: modelData === Theme.name ? Theme.background : Theme.foreground
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeLarge
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, modelData])
-                        }
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_J) {
+                        currentIndex = Math.min(currentIndex + 1, count - 1)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_K) {
+                        currentIndex = Math.max(currentIndex - 1, 0)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, themes[currentIndex]])
+                        event.accepted = true
                     }
                 }
             }
         }
+    }
+
+    IpcHandler {
+        target: "themePanel"
+
+        function open():   void { themePanel.visible = true }
+        function close():  void { themePanel.visible = false }
+        function toggle(): void { themePanel.visible = !themePanel.visible }
     }
 }
