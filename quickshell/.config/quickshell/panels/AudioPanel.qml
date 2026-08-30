@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
@@ -6,14 +7,14 @@ import QtQuick.Layouts
 import ".."
 
 PopupWindow {
-    id: panel
+    id: audioPanel
 
     property var barWindow
 
     anchor {
-        window: panel.barWindow
-        rect.x: panel.barWindow.width - (panel.width / 2)
-        rect.y: panel.barWindow.height
+        window: audioPanel.barWindow
+        rect.x: audioPanel.barWindow.width - (audioPanel.width / 2)
+        rect.y: audioPanel.barWindow.height
     }
 
     implicitWidth: Dimensions.panelWidth
@@ -175,5 +176,13 @@ PopupWindow {
                 }
             }
         }
+    }
+
+    IpcHandler {
+        target: "audioPanel"
+
+        function open():   void { audioPanel.visible = true }
+        function close():  void { audioPanel.visible = false }
+        function toggle(): void { audioPanel.visible = !audioPanel.visible }
     }
 }
