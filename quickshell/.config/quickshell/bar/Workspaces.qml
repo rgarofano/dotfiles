@@ -27,6 +27,18 @@ Repeater {
             }
         }
 
+        Rectangle {
+            property var workspace: modelData
+
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            visible: workspace.focused
+            height: 3
+            color: Theme.blue
+        }
+
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
@@ -40,5 +52,4 @@ Repeater {
             onClicked: workspace.activate()
         }
     }
-
 }
