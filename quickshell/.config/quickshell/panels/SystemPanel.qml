@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 
@@ -6,14 +7,14 @@ import ".."
 import "../services"
 
 PopupWindow {
-    id: panel
+    id: systemPanel
 
     property var barWindow
 
     anchor {
-        window: panel.barWindow
-        rect.x: panel.barWindow.width - (panel.width / 2)
-        rect.y: panel.barWindow.height
+        window: systemPanel.barWindow
+        rect.x: systemPanel.barWindow.width - (systemPanel.width / 2)
+        rect.y: systemPanel.barWindow.height
     }
 
     implicitWidth: Dimensions.panelWidth
@@ -143,5 +144,13 @@ PopupWindow {
                 }
             }
         }
+    }
+
+    IpcHandler {
+        target: "systemPanel"
+
+        function open():   void { systemPanel.visible = true }
+        function close():  void { systemPanel.visible = false }
+        function toggle(): void { systemPanel.visible = !systemPanel.visible }
     }
 }

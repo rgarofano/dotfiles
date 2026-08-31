@@ -335,6 +335,7 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 -- System tray
 hl.bind(mainMod .. "+ A", hl.dsp.exec_cmd("quickshell ipc call audioPanel toggle"))
 hl.bind(mainMod .. "+ T", hl.dsp.exec_cmd("quickshell ipc call themePanel toggle"))
+hl.bind(mainMod .. "+ R", hl.dsp.exec_cmd("quickshell ipc call systemPanel toggle"))
 
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----
