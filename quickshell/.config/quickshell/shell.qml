@@ -30,7 +30,8 @@ PanelWindow {
             spacing: 16
 
             Network { panel: networkPanel }
-            Audio { panel: audioPanel }
+            AudioOutput { panel: soundPanel }
+            AudioInput { panel: micPanel }
             SystemResources { panel: systemPanel }
             ThemeSelect { panel: themePanel }
         }
@@ -45,8 +46,13 @@ PanelWindow {
         barWindow: bar
     }
 
-    AudioPanel {
-        id: audioPanel
+    SoundPanel {
+        id: soundPanel
+        barWindow: bar
+    }
+
+    MicPanel {
+        id: micPanel
         barWindow: bar
     }
 

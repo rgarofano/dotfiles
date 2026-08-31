@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Services.Pipewire
 import QtQuick
 
 import ".."
@@ -8,7 +9,7 @@ Text {
 
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSizeLarge
-    text: ""
+    text: Pipewire.defaultAudioSink?.audio?.muted ? "": ""
     color: panel.visible ? Theme.blue : Theme.foreground
 
     Behavior on color {
