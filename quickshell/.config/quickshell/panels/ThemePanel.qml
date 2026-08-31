@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
 
@@ -19,9 +20,18 @@ PopupWindow {
 
     implicitWidth: Dimensions.panelWidth
     implicitHeight: themes.length * themeList.contentHeight
-    grabFocus: true
 
     color: "transparent"
+
+    HyprlandFocusGrab {
+        id: focusGrab
+
+        windows: [themePanel]
+
+        onCleared: {
+            themePanel.visible = false
+        }
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -53,8 +63,8 @@ PopupWindow {
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                spacing: 5
 
+                spacing: 5
                 focus: true
                 currentIndex: 0
                 model: themes
@@ -103,8 +113,21 @@ PopupWindow {
     IpcHandler {
         target: "themePanel"
 
-        function open():   void { themePanel.visible = true }
-        function close():  void { themePanel.visible = false }
-        function toggle(): void { themePanel.visible = !themePanel.visible }
+        function open(): void {
+            themePanel.visible = true
+            focusGrab.active = true
+            themeList.forceActiveFocus()
+        }
+        function close(): void {
+            focusGrab.active = false
+            themePanel.visible = false
+        }
+        function toggle(): void {
+            if (themePanel.visible) {
+                close()
+            } else {
+                open()
+            }
+        }
     }
 }
