@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+route_info=$(ip route get 1.1.1.1 2>/dev/null | grep dev | head -1)
+
+interface=$(cut -d' ' -f5 <<<"$route_info")
+gateway=$(cut -d' ' -f3 <<<"$route_info")
+ip=$(cut -d' ' -f7 <<<"$route_info")
+
+ssid=""
+if [[ $interface =~ ^wl ]]; then
+    ssid=$(iw dev "$interface" link | awk -F ': ' '/SSID:/ {print $2}')
+fi
+
+jq -n --arg interface "$interface" --arg gateway "$gateway" --arg ip "$ip" --arg ssid "$ssid" \
+    '{
+        interface: (if $interface == "" then null else $interface end),
+        gateway: (if $gateway == "" then null else $gateway end),
+        ip: (if $ip == "" then null else $ip end),
+        ssid: (if $ssid == "" then null else $ssid end)
+    }'

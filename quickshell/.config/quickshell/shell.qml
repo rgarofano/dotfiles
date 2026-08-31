@@ -29,6 +29,7 @@ PanelWindow {
 
             spacing: 16
 
+            Network { panel: networkPanel }
             Audio { panel: audioPanel }
             SystemResources { panel: systemPanel }
             ThemeSelect { panel: themePanel }
@@ -37,6 +38,11 @@ PanelWindow {
 
     DateTime {
         anchors.centerIn: parent
+    }
+
+    NetworkPanel {
+        id: networkPanel
+        barWindow: bar
     }
 
     AudioPanel {
