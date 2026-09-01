@@ -44,54 +44,96 @@ ShellRoot {
                     easing.type: Easing.InOutCubic
                 }
 
-                Rectangle {
-                    id: inputContainer
+                Column {
 
                     anchors.centerIn: parent
-
-                    width: 300
-                    height: 50
-                    color: Theme.background
+                    spacing: 500
                     z: 1
 
-                    TextInput {
-                        id: passwordInput
+                    Column {
+                        anchors.horizontalCenter: parent.horizontalCenter
 
-                        width: Math.min(implicitWidth, parent.width - 20)
-                        anchors.centerIn: parent
+                        spacing: 10
 
-                        font.pixelSize: Theme.fontSizeLarge
-                        echoMode: TextInput.Password
-                        focus: true
-                        color: Theme.foreground
-                        clip: true
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
 
-                        onTextEdited: lockContext.text = text
-                        onAccepted: lockContext.tryUnlock()
-                    }
-
-                    Text {
-                        id: errorMessage
-
-                        anchors {
-                            top: passwordInput.bottom
-                            horizontalCenter: inputContainer.horizontalCenter
-                            topMargin: 30
+                            text: {
+                                const date = new Date()
+                                const hours = date.getHours() % 12 || 12
+                                return `${hours}:${date.getMinutes().toString().padStart(2, "0")}`
+                            }
+                            color: Theme.foreground
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 128
+                            font.letterSpacing: -8
                         }
 
-                        text: ""
-                        color: Theme.red
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeLarge
-                        z: 1
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+
+                            text: Qt.formatDate(new Date(), "dddd, MMMM d")
+                            color: Theme.foreground
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 32
+                            font.letterSpacing: -2
+                        }
                     }
 
-                    Connections {
-                        target: lockContext
+                    Rectangle {
+                        id: inputContainer
 
-                        function onAuthFailure() {
-                            passwordInput.clear()
-                            errorMessage.text = "Incorrect Password"
+                        property int attempts: 0
+
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        width: 300
+                        height: 50
+                        color: Theme.background
+                        opacity: attempts || passwordInput.text.length ? 0.6 : 0
+
+                        TextInput {
+                            id: passwordInput
+
+                            width: Math.min(implicitWidth, parent.width - 20)
+                            anchors.centerIn: parent
+
+                            font.pixelSize: Theme.fontSizeLarge
+                            echoMode: TextInput.Password
+                            focus: true
+                            color: Theme.foreground
+                            clip: true
+                            cursorDelegate: Item {}
+
+                            onTextEdited: () => {
+                                lockContext.text = text
+                                errorMessage.text = ""
+                            }
+                            onAccepted: lockContext.tryUnlock()
+                        }
+
+                        Text {
+                            id: errorMessage
+
+                            anchors {
+                                top: passwordInput.bottom
+                                horizontalCenter: inputContainer.horizontalCenter
+                                topMargin: 30
+                            }
+
+                            text: ""
+                            color: Theme.red
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                        }
+
+                        Connections {
+                            target: lockContext
+
+                            function onAuthFailure() {
+                                inputContainer.attempts++
+                                errorMessage.text = "Incorrect Password"
+                            }
                         }
                     }
                 }
