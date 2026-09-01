@@ -335,6 +335,9 @@ hl.bind(mainMod .. "+ T", hl.dsp.exec_cmd("quickshell ipc call themePanel toggle
 hl.bind(mainMod .. "+ R", hl.dsp.exec_cmd("quickshell ipc call systemPanel toggle"))
 hl.bind(mainMod .. "+ N", hl.dsp.exec_cmd("quickshell ipc call networkPanel toggle"))
 
+-- Lockscreen
+hl.bind(mainMod .. "+ L", hl.dsp.exec_cmd(("quickshell ipc call lock activate")))
+
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----
 --------------------------------
