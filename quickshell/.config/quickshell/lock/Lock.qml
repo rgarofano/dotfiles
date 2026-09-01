@@ -23,6 +23,8 @@ ShellRoot {
         locked: false
 
         WlSessionLockSurface {
+            color: "transparent"
+
             Item {
                 id: lockContent
 
@@ -39,7 +41,7 @@ ShellRoot {
                     from: 0
                     to: 1
                     duration: 1000
-                    easing.type: Easing.OutCubic
+                    easing.type: Easing.InOutCubic
                 }
 
                 Rectangle {
