@@ -36,6 +36,7 @@ ShellRoot {
                 AudioInput { panel: micPanel }
                 SystemResources { panel: systemPanel }
                 ThemeSelect { panel: themePanel }
+                PowerOptions { panel: powerPanel }
             }
         }
 
@@ -65,6 +66,11 @@ ShellRoot {
 
         ThemePanel {
             id: themePanel
+            barWindow: bar
+        }
+
+        PowerPanel {
+            id: powerPanel
             barWindow: bar
         }
     }
