@@ -7,6 +7,7 @@ vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 -- Line numbers
 vim.opt.number = true
+vim.opt.relativenumber = true
 -- Save undo history
 vim.opt.undofile = true
 -- Show markers for LSP errors
