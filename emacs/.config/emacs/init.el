@@ -37,6 +37,8 @@
 ;; Vim is better
 (require 'evil)
 (evil-mode 1)
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "C-u") #'evil-scroll-up))
 
 (setq org-startup-indented t)
 (setq org-hide-leading-stars t)
