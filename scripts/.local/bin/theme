@@ -38,6 +38,9 @@ cp "$THEME_DIR/quickshell/Theme.qml" "$HOME/.config/quickshell"
 
 cp "$THEME_DIR/hypr/theme.lua" "$HOME/.config/hypr/"
 
+cp "$THEME_DIR/emacs/theme.el" "$HOME/.config/emacs/"
+emacsclient --eval '(load-file "~/.config/emacs/theme.el")'
+
 case "$1" in
     "Carbon Fox")
         gsettings set org.gnome.desktop.interface color-scheme prefer-dark
