@@ -4,7 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 
 import ".."
-import "../services"
+import "../helpers"
 
 PopupWindow {
     id: systemPanel

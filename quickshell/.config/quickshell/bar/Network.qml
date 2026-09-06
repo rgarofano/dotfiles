@@ -2,7 +2,7 @@ import Quickshell
 import QtQuick
 
 import ".."
-import "../services"
+import "../helpers"
 
 Text {
     property var panel
