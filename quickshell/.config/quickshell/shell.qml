@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 import "./bar"
 import "./panels"
+import "./notifications"
 import "./lock"
 
 ShellRoot {
@@ -73,6 +74,10 @@ ShellRoot {
             id: powerPanel
             barWindow: bar
         }
+    }
+
+    NotificationService {
+        bar: bar
     }
 
     Lock {}
