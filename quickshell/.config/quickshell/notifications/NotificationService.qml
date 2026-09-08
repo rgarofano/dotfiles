@@ -48,59 +48,100 @@ Scope {
                     property string summary: modelData.summary
                     property string body: modelData.body
                     property var urgency: modelData.urgency
+                    property var actions: modelData.actions
 
                     Layout.fillWidth: true
 
-                    height: 100
+                    height: actions.length > 0 ? 130 : 100
                     color: Theme.background
                     border.width: 2 
                     border.color: urgency === NotificationUrgency.Critical ? Theme.red : Theme.blue
 
-                    GridLayout {
-                        anchors.fill: parent 
-                        anchors.margins: 10
+                    ColumnLayout {
+                        anchors.fill: parent
 
-                        rows: 3
-                        columns: 2
-                        rowSpacing: 0
-                        columnSpacing: 15
+                        spacing: 5
 
-                        Image {
-                            Layout.row: 0
-                            Layout.column: 0
-                            Layout.rowSpan: 3
-                            Layout.preferredWidth: notification.image ? Dimensions.notificationIconSize : 1
-                            Layout.preferredHeight: notification.image ? Dimensions.notificationIconSize : 1
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            Layout.margins: 15
+                            
+                            spacing: 15
 
-                            source: notification.image
+                            Image {
+                                Layout.preferredWidth: notification.image ? Dimensions.notificationIconSize : 1
+                                Layout.preferredHeight: notification.image ? Dimensions.notificationIconSize : 1
+
+                                source: notification.image
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+
+                                spacing: 5
+
+                                Text {
+                                    Layout.fillWidth: true
+
+                                    text: notification.summary
+                                    color: Theme.foreground
+                                    font.weight: 600
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeLarge
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+
+                                    text: notification.body
+                                    color: Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeNormal
+                                    wrapMode: Text.Wrap
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 2
+                                }
+                            }
                         }
 
-                        Text {
-                            Layout.row: 0
-                            Layout.column: 1
-                            Layout.fillWidth: true
+                        RowLayout {
+                                Layout.fillWidth: true
+                                Layout.leftMargin: 2
+                                Layout.rightMargin: 2
+                                Layout.bottomMargin: 1
 
-                            text: notification.summary
-                            color: Theme.foreground
-                            font.weight: 600
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeLarge
-                            elide: Text.ElideRight
-                        }
+                                spacing: 5
+                                visible: notifications.actions.length > 0
+                        
+                            Repeater {
+                                model: notification.actions
 
-                        Text {
-                            Layout.row: 1
-                            Layout.column: 1
-                            Layout.fillWidth: true
-                            Layout.rowSpan: 2
+                                Rectangle {
+                                    Layout.fillWidth: true
 
-                            text: notification.body
-                            color: Theme.foreground
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeNormal
-                            wrapMode: Text.Wrap
-                            elide: Text.ElideRight
-                            maximumLineCount: 2
+                                    height: 25
+                                    color: Theme.brightBlack
+
+                                    Text {
+                                        anchors.centerIn: parent
+
+                                        text: modelData.text
+                                        color: Theme.background
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.fontSizeNormal
+                                        font.weight: 700
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: modelData.invoke()
+                                    }
+                                }
+                            }
                         }
                     }
 
