@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Notifications
 
 import ".."
@@ -40,120 +41,58 @@ Scope {
 
             Repeater {
                 model: server.trackedNotifications
-
-                delegate: Rectangle {
-                    id: notification
-
-                    property string image: modelData.image ? modelData.image : modelData.appIcon
-                    property string summary: modelData.summary
-                    property string body: modelData.body
-                    property var urgency: modelData.urgency
-                    property var actions: modelData.actions
-
-                    Layout.fillWidth: true
-
-                    height: actions.length > 0 ? 130 : 100
-                    color: Theme.background
-                    border.width: 2 
-                    border.color: urgency === NotificationUrgency.Critical ? Theme.red : Theme.blue
-
-                    ColumnLayout {
-                        anchors.fill: parent
-
-                        spacing: 5
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            Layout.margins: 15
-                            
-                            spacing: 15
-
-                            Image {
-                                Layout.preferredWidth: notification.image ? Dimensions.notificationIconSize : 1
-                                Layout.preferredHeight: notification.image ? Dimensions.notificationIconSize : 1
-
-                                source: notification.image
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-
-                                spacing: 5
-
-                                Text {
-                                    Layout.fillWidth: true
-
-                                    text: notification.summary
-                                    color: Theme.foreground
-                                    font.weight: 600
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeLarge
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-
-                                    text: notification.body
-                                    color: Theme.foreground
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeNormal
-                                    wrapMode: Text.Wrap
-                                    elide: Text.ElideRight
-                                    maximumLineCount: 2
-                                }
-                            }
-                        }
-
-                        RowLayout {
-                                Layout.fillWidth: true
-                                Layout.leftMargin: 2
-                                Layout.rightMargin: 2
-                                Layout.bottomMargin: 1
-
-                                spacing: 5
-                                visible: notifications.actions.length > 0
-                        
-                            Repeater {
-                                model: notification.actions
-
-                                Rectangle {
-                                    Layout.fillWidth: true
-
-                                    height: 25
-                                    color: Theme.brightBlack
-
-                                    Text {
-                                        anchors.centerIn: parent
-
-                                        text: modelData.text
-                                        color: Theme.background
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.fontSizeNormal
-                                        font.weight: 700
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: modelData.invoke()
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Timer {
-                        interval: 5000
-                        running: true
-                        repeat: false
-
-                        onTriggered: modelData.expire()
-                    }
-                }
+                delegate: NotificationItem{}
             }
         }
+    }
+
+    PopupWindow {
+        id: notificationCenter
+
+        anchor.window: root.bar
+        anchor.rect.x: root.bar.width - width / 2
+        anchor.rect.y: root.bar.height
+
+        visible: false
+        implicitWidth: Dimensions.notificationWidth + 40
+        implicitHeight: 500
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+
+            color: Theme.background
+            border.width: 2
+            border.color: Theme.blue
+
+            ListView {
+                id: notificationList
+
+                anchors.margins: 20
+
+                model: server.trackedNotifications
+                spacing: 10
+                focus: true
+                width: parent.width
+
+                delegate: NotificationItem{}
+            }
+
+            Text {
+                anchors.centerIn: parent
+
+                visible: notificationList.count == 0
+                text: "No Notifications"
+                color: Theme.brightBlack
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeLarge
+            }
+        }
+    }
+
+    IpcHandler {
+        target: "notificationCenter"
+        
+        function toggle(): void { notificationCenter.visible = !notificationCenter.visible }
     }
 }
