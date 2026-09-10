@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Effects
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -44,25 +45,21 @@ ShellRoot {
                     easing.type: Easing.InOutCubic
                 }
 
-                Column {
+                ColumnLayout {
+                    anchors.fill: parent
 
-                    anchors.centerIn: parent
-                    spacing: 500
                     z: 1
 
                     Column {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.fillWidth: true
+                        Layout.topMargin: 75
 
-                        spacing: 10
+                        spacing: 0
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            text: {
-                                const date = new Date()
-                                const hours = date.getHours() % 12 || 12
-                                return `${hours}:${date.getMinutes().toString().padStart(2, "0")}`
-                            }
+                            text: Qt.formatTime(clock.date, "h:mm AP").replace(/ (AM|PM)$/, "")
                             color: Theme.foreground
                             font.family: Theme.fontFamily
                             font.pixelSize: 128
@@ -72,20 +69,28 @@ ShellRoot {
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            text: Qt.formatDate(new Date(), "dddd, MMMM d")
+                            text: Qt.formatDate(clock.date, "dddd, MMMM d")
                             color: Theme.foreground
                             font.family: Theme.fontFamily
                             font.pixelSize: 32
                             font.letterSpacing: -2
                         }
+
+                        SystemClock {
+                            id: clock
+                            precision: SystemClock.Minutes
+                        }
                     }
+
+                    Item { Layout.fillHeight: true }
 
                     Rectangle {
                         id: inputContainer
 
                         property int attempts: 0
 
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.bottomMargin: 75
 
                         width: 300
                         height: 50
@@ -152,7 +157,7 @@ ShellRoot {
                     source: wallpaper
                     blurEnabled: true
                     blur: 1.0
-                    blurMax: 48
+                    blurMax: 32
                 }
             }
         }
