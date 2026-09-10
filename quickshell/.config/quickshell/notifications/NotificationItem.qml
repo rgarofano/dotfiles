@@ -83,7 +83,7 @@ Rectangle {
                 Layout.bottomMargin: 8
 
                 spacing: 5
-                visible: notifications.actions.length > 0
+                visible: notification.actions.length > 0
         
             Repeater {
                 model: notification.actions

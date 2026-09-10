@@ -32,6 +32,7 @@ ShellRoot {
 
                 spacing: 16
 
+                Notifications{}
                 Network { panel: networkPanel }
                 AudioOutput { panel: soundPanel }
                 AudioInput { panel: micPanel }
