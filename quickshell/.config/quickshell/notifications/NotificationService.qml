@@ -38,7 +38,7 @@ Scope {
     PopupWindow {
         anchor.window: root.bar
         anchor.rect.x: root.bar.width - width / 2 
-        anchor.rect.y: root.bar.height + 5
+        anchor.rect.y: root.bar.height
 
         visible: server.trackedNotifications.values
         implicitWidth: Dimensions.notificationWidth
