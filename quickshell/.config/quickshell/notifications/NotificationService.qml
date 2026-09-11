@@ -62,6 +62,9 @@ Scope {
 
     function timeSince(date) {
         const seconds = Math.floor((clock.date - date) / 1000)
+        if (seconds < 60) {
+            return seconds + "s ago"
+        }
 
         const minutes = Math.floor(seconds / 60)
         if (minutes < 60)
@@ -194,7 +197,7 @@ Scope {
     SystemClock {
         id: clock
 
-        precision: SystemClock.Minutes
+        precision: SystemClock.Seconds
     }
 
     IpcHandler {
