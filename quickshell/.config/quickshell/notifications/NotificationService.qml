@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Notifications
 
@@ -90,6 +91,12 @@ Scope {
         implicitHeight: notificationList.count > 0 ? Math.min(40 + notificationList.contentHeight, 500) : 140
         color: "transparent"
 
+        HyprlandFocusGrab {
+            id: focusGrab
+
+            windows: [notificationCenter]
+        }
+
         Rectangle {
             anchors.fill: parent
 
@@ -105,17 +112,26 @@ Scope {
                 spacing: 10
                 focus: true
                 width: parent.width
+                currentIndex: 0
 
                 delegate: Rectangle {
+                    id: banner
+
+                    property bool selected: ListView.isCurrentItem
+
                     width: parent?.width
                     height: 100
                     color: Theme.background
                     border.width: 2
-                    border.color: urgency === NotificationUrgency.Critical ? Theme.red : Theme.blue
+                    border.color: !selected ? Theme.brightBlack
+                                    : urgency === NotificationUrgency.Critical ? Theme.red : Theme.blue
 
                     MouseArea {
                         anchors.fill: parent
 
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onEntered: notificationList.currentIndex = index
                         onClicked: notifications.remove(index, 1)
                     }
 
@@ -130,6 +146,7 @@ Scope {
                             Layout.preferredHeight: image ? Dimensions.notificationIconSize : 1
 
                             source: image
+                            opacity: banner.selected ? 1 : 0.5
                         }
 
                         ColumnLayout {
@@ -141,23 +158,32 @@ Scope {
                                 Layout.fillWidth: true
 
                                 text: summary
-                                color: Theme.blue
+                                color: !banner.selected ? Theme.brightBlack
+                                        : urgency === NotificationUrgency.Critical ? Theme.red : Theme.blue
                                 font.weight: 600
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeLarge
                                 elide: Text.ElideRight
+
+                                Behavior on color {
+                                    ColorAnimation { duration: 150 }
+                                }
                             }
 
                             Text {
                                 Layout.fillWidth: true
 
                                 text: body
-                                color: Theme.foreground
+                                color: banner.selected ? Theme.foreground : Theme.brightBlack
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeNormal
                                 wrapMode: Text.Wrap
                                 elide: Text.ElideRight
                                 maximumLineCount: 2
+
+                                Behavior on color {
+                                    ColorAnimation { duration: 150 }
+                                }
                             }
                         }
 
@@ -171,6 +197,25 @@ Scope {
                         }
                     }
 
+                    Behavior on color {
+                        ColorAnimation { duration: 150 }
+                    }
+                }
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_J) {
+                        currentIndex = Math.min(currentIndex + 1, count - 1)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_K) {
+                        currentIndex = Math.max(currentIndex - 1, 0)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                        notifications.remove(currentIndex, 1)
+                        if (currentIndex == count) {
+                            currentIndex = Math.max(currentIndex - 1, 0)
+                        }
+                        event.accepted = true
+                    }
                 }
             }
 
@@ -203,6 +248,21 @@ Scope {
     IpcHandler {
         target: "notificationCenter"
         
-        function toggle(): void { notificationCenter.visible = !notificationCenter.visible }
+        function open(): void {
+            notificationCenter.visible = true    
+            focusGrab.active = true
+            notificationList.forceActiveFocus()
+        }
+        function close(): void {
+            notificationCenter.visible = false
+            focusbGrab.active = false
+        }
+        function toggle(): void {
+            if (notificationCenter.visible) {
+                close()
+            } else {
+                open()
+            }
+        }
     }
 }
