@@ -32,7 +32,7 @@ ShellRoot {
 
                 spacing: 16
 
-                Notifications{}
+                Notifications { panel: notificationCenter }
                 Network { panel: networkPanel }
                 AudioOutput { panel: soundPanel }
                 AudioInput { panel: micPanel }
@@ -44,6 +44,12 @@ ShellRoot {
 
         DateTime {
             anchors.centerIn: parent
+        }
+
+        NotificationCenter {
+            id: notificationCenter
+            notificationsModel: notifications
+            barWindow: bar
         }
 
         NetworkPanel {
@@ -77,8 +83,13 @@ ShellRoot {
         }
     }
 
+    ListModel {
+        id: notifications
+    }
+
     NotificationService {
-        bar: bar
+        notificationsModel: notifications
+        barWindow: bar
     }
 
     Lock {}

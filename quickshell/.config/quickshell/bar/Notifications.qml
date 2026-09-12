@@ -4,10 +4,12 @@ import Quickshell
 import ".."
 
 Text {
-    id: bell
+    id: root
+
+    required property var panel
 
     text: "󰂚"
-    color: Theme.foreground
+    color: panel.visible ? Theme.blue : Theme.foreground
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSizeLarge
 
@@ -15,14 +17,7 @@ Text {
         anchors.fill: parent
 
         cursorShape: Qt.PointingHandCursor
-        onClicked: () => {
-            if (bell.color == Theme.foreground) {
-                bell.color = Theme.blue
-            } else {
-                bell.color = Theme.foreground
-            }
-            Quickshell.execDetached(["qs", "ipc", "call", "notificationCenter", "toggle"])
-        }
+        onClicked: root.panel.visible = !root.panel.visible
    }
 
    Behavior on color {

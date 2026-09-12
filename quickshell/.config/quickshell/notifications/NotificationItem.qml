@@ -55,7 +55,7 @@ Rectangle {
                     Layout.fillWidth: true
 
                     text: notification.summary
-                    color: Theme.blue
+                    color: notification.urgency === NotificationUrgency.Critical ? Theme.red : Theme.blue
                     font.weight: 600
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeLarge
