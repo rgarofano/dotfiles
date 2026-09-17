@@ -40,8 +40,12 @@
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "C-u") #'evil-scroll-up))
 
+(setq org-startup-folded t)
 (setq org-startup-indented t)
 (setq org-hide-leading-stars t)
+(setq org-agenda-files (list "~/Documents"))
+(setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+(require 'org-tempo)
 (require 'org-superstar)
 (setq org-superstar-headline-bullets-list
       '("◉" "○" "●" "◆" "◇"))
@@ -50,6 +54,11 @@
 (require 'evil-org)
 (evil-org-set-key-theme)
 (add-hook 'org-mode-hook #'evil-org-mode)
+(with-eval-after-load 'org
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal org-mode-map
+      (kbd "gr")
+      #'org-table-recalculate-buffer-tables)))
 
 (setq vc-follow-symlinks t)
 
