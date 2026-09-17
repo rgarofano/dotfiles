@@ -332,8 +332,9 @@ hl.bind(mainMod .. "+ S", hl.dsp.exec_cmd("quickshell ipc call soundPanel toggle
 hl.bind(mainMod .. "+ M", hl.dsp.exec_cmd("quickshell ipc call micPanel toggle"))
 hl.bind(mainMod .. "+ T", hl.dsp.exec_cmd("quickshell ipc call themePanel toggle"))
 hl.bind(mainMod .. "+ R", hl.dsp.exec_cmd("quickshell ipc call systemPanel toggle"))
-hl.bind(mainMod .. "+ N", hl.dsp.exec_cmd("quickshell ipc call networkPanel toggle"))
+hl.bind(mainMod .. "+ I", hl.dsp.exec_cmd("quickshell ipc call networkPanel toggle"))
 hl.bind(mainMod .. "+ P", hl.dsp.exec_cmd("quickshell ipc call powerPanel toggle"))
+hl.bind(mainMod .. "+ N", hl.dsp.exec_cmd(("quickshell ipc call notificationCenter toggle")))
 
 -- Lockscreen
 hl.bind(mainMod .. "+ L", hl.dsp.exec_cmd(("quickshell ipc call lock activate")))
