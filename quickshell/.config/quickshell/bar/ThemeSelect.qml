@@ -19,6 +19,6 @@ Text {
         anchors.fill: parent
 
         cursorShape: Qt.PointingHandCursor
-        onClicked: parent.panel.visible = !parent.panel.visible
+        onClicked: parent.panel.toggle()
     }
 }

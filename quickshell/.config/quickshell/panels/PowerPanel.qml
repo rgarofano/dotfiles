@@ -17,10 +17,30 @@ PopupWindow {
     implicitWidth: 150
     implicitHeight: powerList.contentHeight + 4
 
+    function open() {
+        powerPanel.visible = true
+        focusGrab.active = true
+        powerList.forceActiveFocus()
+    }
+
+    function close() {
+        focusGrab.active = false
+        powerPanel.visible = false
+    }
+    
+    function toggle() {
+        if (powerPanel.visible) {
+            close()
+        } else {
+            open()
+        }
+    }
+
     HyprlandFocusGrab {
         id: focusGrab
 
-        windows: [powerPanel]
+        windows: [powerPanel.barWindow, powerPanel]
+        onCleared: powerPanel.visible = false
     }
 
     Rectangle {
@@ -68,16 +88,11 @@ PopupWindow {
 
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onEntered: () => {
-                        const index = powerList.options.indexOf(modelData)
-                        powerList.currentIndex = index
-                    }
+                    onEntered: powerList.currentIndex = index
                     onClicked: () => {
                         if (modelData.includes("Lock")) {
-                            focusGrab.active = false
-                            powerPanel.visible = false
+                            powerPanel.close()
                         }
-                        const index = powerList.currentIndex
                         Quickshell.execDetached(powerList.commands[index])
                     }
                 }
@@ -92,10 +107,12 @@ PopupWindow {
                     event.accepted = true
                 } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
                     if (options[currentIndex].includes("Lock")) {
-                        focusGrab.active = false
-                        powerPanel.visible = false
+                        powerPanel.close()
                     }
                     Quickshell.execDetached(commands[currentIndex])
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Escape) {
+                    powerPanel.close()
                     event.accepted = true
                 }
             }
@@ -105,23 +122,6 @@ PopupWindow {
     IpcHandler {
         target: "powerPanel"
 
-        function open(): void {
-            powerPanel.visible = true
-            focusGrab.active = true
-            powerList.forceActiveFocus()
-        }
-
-        function close(): void {
-            focusGrab.active = false
-            powerPanel.visible = false
-        }
-        
-        function toggle(): void {
-            if (powerPanel.visible) {
-                close()
-            } else {
-                open()
-            }
-        }
+        function toggle(): void { powerPanel.toggle() }
     }
 }

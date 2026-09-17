@@ -4,8 +4,6 @@ import Quickshell
 import ".."
 
 Text {
-    id: root
-
     required property var panel
 
     text: "󰂚"
@@ -17,7 +15,7 @@ Text {
         anchors.fill: parent
 
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.panel.visible = !root.panel.visible
+        onClicked: parent.panel.toggle()
    }
 
    Behavior on color {

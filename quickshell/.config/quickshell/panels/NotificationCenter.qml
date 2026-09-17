@@ -40,10 +40,30 @@ PopupWindow {
         return days + "d ago"
     }
 
+    function open() {
+        notificationCenter.visible = true    
+        focusGrab.active = true
+        notificationList.forceActiveFocus()
+    }
+
+    function close() {
+        focusGrab.active = false
+        notificationCenter.visible = false
+    }
+
+    function toggle() {
+        if (notificationCenter.visible) {
+            close()
+        } else {
+            open()
+        }
+    }
+
     HyprlandFocusGrab {
         id: focusGrab
 
-        windows: [notificationCenter]
+        windows: [notificationCenter.barWindow, notificationCenter]
+        onCleared: notificationCenter.visible = false
     }
 
     Rectangle {
@@ -164,6 +184,9 @@ PopupWindow {
                         currentIndex = Math.max(currentIndex - 1, 0)
                     }
                     event.accepted = true
+                } else if (event.key === Qt.Key_Escape) {
+                    notificationCenter.close()
+                    event.accepted = true
                 }
             }
         }
@@ -196,21 +219,6 @@ PopupWindow {
     IpcHandler {
         target: "notificationCenter"
         
-        function open(): void {
-            notificationCenter.visible = true    
-            focusGrab.active = true
-            notificationList.forceActiveFocus()
-        }
-        function close(): void {
-            focusGrab.active = false
-            notificationCenter.visible = false
-        }
-        function toggle(): void {
-            if (notificationCenter.visible) {
-                close()
-            } else {
-                open()
-            }
-        }
+        function toggle(): void { notificationCenter.toggle() }
     }
 }

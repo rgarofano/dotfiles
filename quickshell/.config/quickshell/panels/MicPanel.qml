@@ -21,17 +21,32 @@ PopupWindow {
 
     implicitWidth: Dimensions.panelWidth
     implicitHeight: content.implicitHeight + 40
-
     color: "transparent"
+
+    function open() {
+        micPanel.visible = true
+        focusGrab.active = true
+        micList.forceActiveFocus()
+    }
+
+    function close() {
+        focusGrab.active = false
+        micPanel.visible = false
+    }
+
+    function toggle() {
+        if (micPanel.visible) {
+            close()
+        } else {
+            open()
+        }
+    }
 
     HyprlandFocusGrab {
         id: focusGrab
 
-        windows: [micPanel]
-
-        onCleared: {
-            micPanel.visible = false
-        }
+        windows: [micPanel.barWindow, micPanel]
+        onCleared: micPanel.visible = false
     }
 
     Rectangle {
@@ -101,6 +116,8 @@ PopupWindow {
                         anchors.fill: parent
 
                         cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onEntered: micList.currentIndex = index
                         onClicked: Pipewire.preferredDefaultAudioSource = modelData
                     }
                 }
@@ -128,6 +145,9 @@ PopupWindow {
                         event.accepted = true
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         Pipewire.preferredDefaultAudioSource = microphones[currentIndex]
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Escape) {
+                        micPanel.close()
                         event.accepted = true
                     }
                 }
@@ -186,21 +206,6 @@ PopupWindow {
     IpcHandler {
         target: "micPanel"
 
-        function open(): void {
-            micPanel.visible = true
-            focusGrab.active = true
-            micList.forceActiveFocus()
-        }
-        function close(): void {
-            focusGrab.active = false
-            micPanel.visible = false
-        }
-        function toggle(): void {
-            if (micPanel.visible) {
-                close()
-            } else {
-                open()
-            }
-        }
+        function toggle(): void { micPanel.toggle() }
     }
 }

@@ -20,17 +20,33 @@ PopupWindow {
 
     implicitWidth: Dimensions.panelWidth
     implicitHeight: themes.length * themeList.contentHeight
-
     color: "transparent"
+
+    function open() {
+        themePanel.visible = true
+        focusGrab.active = true
+        themeList.forceActiveFocus()
+    }
+
+    function close() {
+        focusGrab.active = false
+        themePanel.visible = false
+    }
+
+    function toggle() {
+        if (themePanel.visible) {
+            close()
+        } else {
+            open()
+        }
+    }
 
     HyprlandFocusGrab {
         id: focusGrab
 
-        windows: [themePanel]
+        windows: [themePanel.barWindow, themePanel]
 
-        onCleared: {
-            themePanel.visible = false
-        }
+        onCleared: themePanel.visible = false
     }
 
     Rectangle {
@@ -90,6 +106,8 @@ PopupWindow {
                         anchors.fill: parent
                         
                         cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onEntered: themeList.currentIndex = index
                         onClicked: Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, modelData])
                     }
                 }
@@ -104,6 +122,9 @@ PopupWindow {
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, themes[currentIndex]])
                         event.accepted = true
+                    } else if (event.key === Qt.Key_Escape) {
+                        themePanel.close()
+                        event.accepted = true
                     }
                 }
             }
@@ -113,21 +134,6 @@ PopupWindow {
     IpcHandler {
         target: "themePanel"
 
-        function open(): void {
-            themePanel.visible = true
-            focusGrab.active = true
-            themeList.forceActiveFocus()
-        }
-        function close(): void {
-            focusGrab.active = false
-            themePanel.visible = false
-        }
-        function toggle(): void {
-            if (themePanel.visible) {
-                close()
-            } else {
-                open()
-            }
-        }
+        function toggle(): void { themePanel.toggle() }
     }
 }

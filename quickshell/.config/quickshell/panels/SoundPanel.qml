@@ -21,17 +21,32 @@ PopupWindow {
 
     implicitWidth: Dimensions.panelWidth
     implicitHeight: content.implicitHeight + 40
-
     color: "transparent"
+
+    function open() {
+        soundPanel.visible = true
+        focusGrab.active = true
+        sinkList.forceActiveFocus()
+    }
+
+    function close() {
+        focusGrab.active = false
+        soundPanel.visible = false
+    }
+
+    function toggle() {
+        if (soundPanel.visible) {
+            close()
+        } else {
+            open()
+        }
+    }
 
     HyprlandFocusGrab {
         id: focusGrab
 
-        windows: [soundPanel]
-
-        onCleared: {
-            soundPanel.visible = false
-        }
+        windows: [soundPanel.barWindow, soundPanel]
+        onCleared: soundPanel.visible = false
     }
 
     Rectangle {
@@ -100,6 +115,8 @@ PopupWindow {
                         anchors.fill: parent
 
                         cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onEntered: sinkList.currentIndex = index
                         onClicked: Pipewire.preferredDefaultAudioSink = modelData
                     }
                 }
@@ -127,6 +144,9 @@ PopupWindow {
                         event.accepted = true
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         Pipewire.preferredDefaultAudioSink = sinks[currentIndex]
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Escape) {
+                        soundPanel.close()
                         event.accepted = true
                     }
                 }
@@ -185,21 +205,6 @@ PopupWindow {
     IpcHandler {
         target: "soundPanel"
 
-        function open(): void {
-            soundPanel.visible = true
-            focusGrab.active = true
-            sinkList.forceActiveFocus()
-        }
-        function close(): void {
-            focusGrab.active = false
-            soundPanel.visible = false
-        }
-        function toggle(): void {
-            if (soundPanel.visible) {
-                close()
-            } else {
-                open()
-            }
-        }
+        function toggle(): void { soundPanel.toggle() }
     }
 }
