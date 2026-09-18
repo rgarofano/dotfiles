@@ -301,6 +301,11 @@ end
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
+-- Move windows with arrow keys
+hl.bind(mainMod .. " + left", hl.dsp.window.move({ direction = "left" }))
+hl.bind(mainMod .. " + right", hl.dsp.window.move({ direction = "right" }))
+hl.bind(mainMod .. " + up", hl.dsp.window.move({ direction = "up" }))
+hl.bind(mainMod .. " + down", hl.dsp.window.move({ direction = "down" }))
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
