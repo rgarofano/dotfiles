@@ -280,7 +280,6 @@ hl.bind(mainMod .. " + escape",
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + X", hl.dsp.layout("togglesplit")) -- dwindle only
 
 -- Move focus with mainMod + arrow keys
@@ -339,7 +338,8 @@ hl.bind(mainMod .. "+ T", hl.dsp.exec_cmd("quickshell ipc call themePanel toggle
 hl.bind(mainMod .. "+ R", hl.dsp.exec_cmd("quickshell ipc call systemPanel toggle"))
 hl.bind(mainMod .. "+ I", hl.dsp.exec_cmd("quickshell ipc call networkPanel toggle"))
 hl.bind(mainMod .. "+ P", hl.dsp.exec_cmd("quickshell ipc call powerPanel toggle"))
-hl.bind(mainMod .. "+ N", hl.dsp.exec_cmd(("quickshell ipc call notificationCenter toggle")))
+hl.bind(mainMod .. "+ N", hl.dsp.exec_cmd("quickshell ipc call notificationCenter toggle"))
+hl.bind(mainMod .. "+ space", hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
 
 -- Lockscreen
 hl.bind(mainMod .. "+ SHIFT + L", hl.dsp.exec_cmd(("quickshell ipc call lock activate")))

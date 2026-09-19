@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import "./bar"
 import "./panels"
 import "./notifications"
+import "./launcher"
 import "./lock"
 
 ShellRoot {
@@ -89,6 +90,10 @@ ShellRoot {
 
     NotificationService {
         notificationsModel: notifications
+        barWindow: bar
+    }
+
+    AppLauncher {
         barWindow: bar
     }
 
