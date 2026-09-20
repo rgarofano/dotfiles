@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# /proc/stat has cumulative totals for cpu cycles used
+# This means we need to sample it twice to determine the current CPU utilization
+read -r _ user nice system idle iowait irq softirq steal _ _ < /proc/stat
+idle_prev=$((idle + iowait))
+total_prev=$((user + nice + system + irq + softirq + steal + idle_prev))
+sleep 1
+read -r _ user nice system idle iowait irq softirq steal _ _ < /proc/stat
+idle_curr=$((idle + iowait))
+total_curr=$((user + nice + system + irq + softirq + steal + idle_curr))
+idle_cycles=$((idle_curr - idle_prev))
+total_cycles=$((total_curr - total_prev))
+
+cycles_not_idle=$((total_cycles - idle_cycles))
+cpu_usage=$((100 * 100 * cycles_not_idle / total_cycles))
+
+read -r mem_total_kib mem_used_kib < <(awk '
+/MemTotal:/     { totalKib = $2 }
+/MemAvailable:/ { availableKib = $2 }
+END {
+    printf "%d %d\n", totalKib, totalKib - availableKib
+}' /proc/meminfo)
+
+read -r disk_total_kib disk_used_kib < <(df -P / | grep luks | awk '{print $2,$3}')
+
+jq -n --arg cpuUsage "$cpu_usage" --arg totalMemory "$mem_total_kib" --arg usedMemory "$mem_used_kib" --arg totalStorage "$disk_total_kib" --arg usedStorage "$disk_used_kib" \
+    '{
+        cpuUsage: $cpuUsage,
+        totalMemoryKiB: $totalMemory,
+        usedMemoryKiB: $usedMemory,
+        totalStorageKiB: $totalStorage,
+        usedStorageKiB: $usedStorage
+    }'

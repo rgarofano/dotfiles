@@ -16,9 +16,7 @@ Singleton {
         id: process
 
         command: [`${Quickshell.env("HOME")}/.local/bin/internet-status`]
-
         running: true
-
         stdout: StdioCollector {
             onStreamFinished: {
                 const data = JSON.parse(text)
