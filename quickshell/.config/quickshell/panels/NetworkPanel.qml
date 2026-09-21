@@ -10,15 +10,18 @@ import "../helpers"
 PopupWindow {
     id: networkPanel
 
-    property var barWindow
+    required property var barWindow
+    property var device: Networking.devices.values.find(d => d.name === Internet.intf)
+    property int borderWidth: 2
+    property int padding: 15
 
     anchor {
         window: networkPanel.barWindow
-        rect.x: networkPanel.barWindow.width - (networkPanel.width / 2)
+        rect.x: networkPanel.barWindow.width - width / 2
         rect.y: networkPanel.barWindow.height
     }
 
-    implicitWidth: Dimensions.panelWidth
+    implicitWidth:  300
     implicitHeight: 400
     color: "transparent"
 
@@ -26,81 +29,109 @@ PopupWindow {
         anchors.fill: parent
 
         color: Theme.background
-        border.width: 2
+        border.width: networkPanel.borderWidth
         border.color: Theme.blue
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 20
+            anchors.margins: networkPanel.padding
 
             spacing: 10
-
+            
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                Layout.bottomMargin: 10
 
-                text: `Internet Status: ${internet.device ? "Connected" : "Disconnected"}`
-                color: internet.device ? Theme.green : Theme.red
+                text: {
+                    switch(Networking.connectivity) {
+                        case NetworkConnectivity.None:
+                            return "󰯡  No Network Connection"
+                        case NetworkConnectivity.Limited:
+                            return "  No Internet Access"
+                        case NetworkConnectivity.Full:
+                            return "  Internet Access"
+                        default:
+                            return "  Network Status Unknown"
+                    }
+                }
+                color: {
+                    switch(Networking.connectivity) {
+                        case NetworkConnectivity.None:
+                            return Theme.red
+                        case NetworkConnectivity.Limited:
+                            return Theme.yellow
+                        case NetworkConnectivity.Full:
+                            return Theme.green
+                        default:
+                            return Theme.red
+                    }
+                }
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeNormal
+
             }
 
-            GridLayout {
-                id: internet
+            Rectangle {
+                Layout.fillWidth: true
 
-                property var device: Networking.devices.values.find(
-                    d => d.name === Internet.intf
-                )
+                height: 1
+                color: Theme.brightBlack
+            } 
 
+            RowLayout {
+                id: interfaceInfo
+
+                Layout.fillWidth: true
+
+                spacing: 15
                 visible: Internet.intf
-                columns: 2
-                columnSpacing: 30
-                rowSpacing: 5
-
-                Layout.alignment: Qt.AlignHCenter
 
                 Text {
-                    Layout.row: 1
-                    Layout.column: 0
-
-                    text: `${internet?.device?.type === DeviceType.Wired ? "󰈀" : ""} ${internet?.device?.name}`
+                    text: "󰈀"
                     color: Theme.foreground
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: 50
                 }
 
-                Text {
-                    Layout.row: 2
-                    Layout.column: 0
+                ColumnLayout {
+                    Text {
+                        text: networkPanel.device?.name ?? "N/A"
+                        color: Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeNormal
+                    }
 
-                    text: internet?.device?.type === DeviceType.Wired
-                        ? `󰓅 ${internet.device.linkSpeed} Mbps`
-                        : ` ${Internet.ssid}`
-                    color: Theme.foreground
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    Text {
+                        text: networkPanel.device ? `${networkPanel.device?.linkSpeed} Mbps` : "N/A"
+                        color: Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeNormal
+                    }
                 }
 
-                Text {
-                    Layout.row: 1
-                    Layout.column: 1
+                ColumnLayout {
+                    Text {
+                        text: Internet.ip ? `󰩟 ${Internet.ip}` : "N/A"
+                        color: Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeNormal
+                    }
 
-                    text: `󰩟 ${Internet.ip}`
-                    color: Theme.foreground
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                }
-
-                Text {
-                    Layout.row: 2
-                    Layout.column: 1
-
-                    text: `󱇢 ${Internet.gateway}`
-                    color: Theme.foreground
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    Text {
+                        text: Internet.gateway ? `󱇢 ${Internet.gateway}` : "N/A"
+                        color: Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeNormal
+                    }
                 }
             }
+
+            Rectangle {
+                Layout.fillWidth: true
+
+                height: 1
+                color: Theme.brightBlack
+                visible: Internet.intf
+            } 
 
             Item { Layout.fillHeight: true }
         }
