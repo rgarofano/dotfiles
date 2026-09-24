@@ -7,7 +7,7 @@ Text {
     required property var panel
 
     text: "󰂚"
-    color: panel.visible ? Theme.blue : Theme.foreground
+    color: panel.isOpen ? Theme.blue : Theme.foreground
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSizeLarge
 

@@ -6,183 +6,192 @@ import Quickshell.Hyprland
 
 import ".."
 
-PopupWindow {
-    id: launcher
+Scope {
+    id: root
 
     required property var barWindow
-    property int maxHeight: 490
-    property int minHeight: 55
-
-    anchor.window: barWindow
-    anchor.rect.x: barWindow.width / 2 - width / 2
-    anchor.rect.y: barWindow.height
-
-    implicitWidth: 450
-    implicitHeight: Math.min(maxHeight, minHeight + 75 * appList.count)
-    visible: false
-
-    function generateAppList() {
-        applications.clear()
-        for (const entry of DesktopEntries.applications.values) {
-            const query = input.text.toLowerCase()
-            if (entry.noDisplay || !entry.name.toLowerCase().includes(query)) {
-                continue
-            }
-            applications.append({
-                icon: entry.icon,
-                name: entry.name,
-                command: entry.command.join(),
-                runInTerminal: entry.runInTerminal
-            })
-        }
-    }
 
     function open() {
-        launcher.visible = true
-        focusGrab.active = true
+        loader.active = true
+        Qt.callLater(() => {
+            loader.item.focus()
+        })
     }
 
     function close() {
-        focusGrab.active = false
-        launcher.visible = false
-        input.clear()
-        generateAppList()
+        loader.active = false
     }
 
     function toggle() {
-        if (launcher.visible) {
+        if (loader.active) {
             close()
         } else {
             open()
         }
     }
 
-    HyprlandFocusGrab {
-        id: focusGrab
+    LazyLoader {
+        id: loader
 
-        windows: [launcher.barWindow, launcher]
-        onCleared: launcher.visible = false
-        
-    }
+        active: false
 
-    ListModel {
-        id: applications
-    }
+        PanelWindow {
+            id: launcher
 
-    Rectangle {
-        anchors.fill: parent
+            property int maxHeight: 490
+            property int minHeight: 55
 
-        color: Theme.background
-        border.color: Theme.blue
-        border.width: 2
+            implicitWidth: 450
+            implicitHeight: Math.min(maxHeight, minHeight + 75 * appList.count)
 
-        ColumnLayout {
-            id: content
+            function generateAppList() {
+                applications.clear()
+                for (const entry of DesktopEntries.applications.values) {
+                    const query = input.text.toLowerCase()
+                    if (entry.noDisplay || !entry.name.toLowerCase().includes(query)) {
+                        continue
+                    }
+                    applications.append({
+                        icon: entry.icon,
+                        name: entry.name,
+                        command: entry.command.join(),
+                        runInTerminal: entry.runInTerminal
+                    })
+                }
+            }
 
-            anchors.fill: parent
+            function focus() {
+                focusGrab.active = true
+            }
 
-            spacing: 10
+            HyprlandFocusGrab {
+                id: focusGrab
+
+                windows: [root.barWindow, launcher]
+                onCleared: root.close()
+            }
+
+            ListModel {
+                id: applications
+            }
 
             Rectangle {
-                Layout.fillWidth: true
-                Layout.margins: 10
+                anchors.fill: parent
 
-                height: 35
-                color: Theme.black
+                color: Theme.background
+                border.color: Theme.blue
+                border.width: 2
 
-                TextInput {
-                    id: input
+                ColumnLayout {
+                    id: content
 
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.fill: parent
 
-                    width: parent.width
-                    padding: 10
-                    color: Theme.foreground
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    focus: true
+                    spacing: 10
 
-                    onTextEdited: generateAppList()
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.margins: 10
 
-                    Keys.onPressed: event => {
-                        if (event.modifiers === Qt.ControlModifier && event.key === Qt.Key_N) {
-                            appList.currentIndex = Math.min(appList.currentIndex + 1, appList.count - 1)
-                            event.accepted = true
-                        } else if (event.modifiers === Qt.ControlModifier && event.key === Qt.Key_P) {
-                            appList.currentIndex = Math.max(appList.currentIndex -1, 0)
-                            event.accpepted = true
-                        } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                            const app = applications.get(appList.currentIndex)
-                            let command = app.command.split(",")
-                            if (app.runInTerminal) command = ["ghostty", "-e"].concat(command)
-                            Quickshell.execDetached(command)
-                            close()
-                            event.accepted = true
-                        } else if (event.key === Qt.Key_Escape) {
-                            close()
-                            event.accepted = true
-                        }
-                    }
-                }
-            }
+                        height: 35
+                        color: Theme.black
 
-            ListView {
-                id: appList
+                        TextInput {
+                            id: input
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                Layout.bottomMargin: 10
+                            anchors.verticalCenter: parent.verticalCenter
 
-                model: applications
-                width: parent.width
-                spacing: 10
-                currentIndex: 0
-                clip: true
-
-                delegate: Rectangle {
-                    property bool selected: ListView.isCurrentItem
-
-                    width: ListView.view.width
-                    height: 60
-                    color: selected ? Theme.blue : Theme.black
-
-                    RowLayout {
-                        anchors.fill: parent
-
-                        spacing: 20
-
-                        Image {
-                            Layout.preferredWidth: 48
-                            Layout.preferredHeight: 48
-                            Layout.alignment: Qt.AlignVCenter
-                            Layout.leftMargin: 10
-
-                            source: Quickshell.iconPath(icon)
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
-
-                            text: name
-                            color: selected ? Theme.background : Theme.foreground
+                            width: parent.width
+                            padding: 10
+                            color: Theme.foreground
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeLarge
-                            font.weight: 600
+                            focus: true
+
+                            onTextEdited: generateAppList()
+
+                            Keys.onPressed: event => {
+                                if (event.modifiers === Qt.ControlModifier && event.key === Qt.Key_N) {
+                                    appList.currentIndex = Math.min(appList.currentIndex + 1, appList.count - 1)
+                                    event.accepted = true
+                                } else if (event.modifiers === Qt.ControlModifier && event.key === Qt.Key_P) {
+                                    appList.currentIndex = Math.max(appList.currentIndex -1, 0)
+                                    event.accpepted = true
+                                } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                                    const app = applications.get(appList.currentIndex)
+                                    let command = app.command.split(",")
+                                    if (app.runInTerminal) command = ["ghostty", "-e"].concat(command)
+                                    Quickshell.execDetached(command)
+                                    close()
+                                    event.accepted = true
+                                } else if (event.key === Qt.Key_Escape) {
+                                    close()
+                                    event.accepted = true
+                                }
+                            }
+                        }
+                    }
+
+                    ListView {
+                        id: appList
+
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.leftMargin: 10
+                        Layout.rightMargin: 10
+                        Layout.bottomMargin: 10
+
+                        model: applications
+                        width: parent.width
+                        spacing: 10
+                        currentIndex: 0
+                        clip: true
+
+                        delegate: Rectangle {
+                            property bool selected: ListView.isCurrentItem
+
+                            width: ListView.view.width
+                            height: 60
+                            color: selected ? Theme.blue : Theme.black
+
+                            RowLayout {
+                                anchors.fill: parent
+
+                                spacing: 20
+
+                                Image {
+                                    Layout.preferredWidth: 48
+                                    Layout.preferredHeight: 48
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.leftMargin: 10
+
+                                    source: Quickshell.iconPath(icon)
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignVCenter
+
+                                    text: name
+                                    color: selected ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeLarge
+                                    font.weight: 600
+                                }
+                            }
                         }
                     }
                 }
             }
+
+
+            Component.onCompleted: generateAppList()
         }
     }
 
     IpcHandler {
         target: "launcher"
 
-        function toggle(): void { launcher.toggle() }
+        function toggle(): void { root.toggle() }
     }
-
-    Component.onCompleted: generateAppList()
 }
