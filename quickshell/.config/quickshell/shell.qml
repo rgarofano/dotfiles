@@ -6,6 +6,7 @@ import "./bar"
 import "./panels"
 import "./notifications"
 import "./launcher"
+import "./overlay"
 import "./lock"
 
 ShellRoot {
@@ -96,6 +97,8 @@ ShellRoot {
     AppLauncher {
         barWindow: bar
     }
+
+    VolumeOverlay {}
 
     Lock {}
 }
