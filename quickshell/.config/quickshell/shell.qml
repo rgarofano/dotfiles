@@ -98,7 +98,9 @@ ShellRoot {
         barWindow: bar
     }
 
-    VolumeOverlay {}
+    VolumeOverlay {
+        disabled: soundPanel.isOpen
+    }
 
     Lock {}
 }

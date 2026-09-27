@@ -8,6 +8,7 @@ import ".."
 Scope {
     id: root
 
+    required property bool disabled
     property bool show: false
     property bool muted: Pipewire.defaultAudioSink?.audio.muted ?? true
 
@@ -19,11 +20,17 @@ Scope {
         target: Pipewire.defaultAudioSink?.audio
 
         function onVolumeChanged() {
+            if (disabled) {
+                return
+            }
             root.show = true
             hideTimer.restart()
         }
 
         function onMutedChanged() {
+            if (disabled) {
+                return
+            }
             root.show = true
             hideTimer.restart()
         }
