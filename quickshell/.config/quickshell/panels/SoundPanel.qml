@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Layouts
 
 import ".."
+import "../common"
 
 Scope {
     id: root
@@ -47,7 +48,7 @@ Scope {
             margins.right: 2
 
             implicitWidth: Dimensions.panelWidth
-            implicitHeight: 100 + 40 * sinkList.count
+            implicitHeight: 160 + 40 * sinkList.count + 75 * mixer.count
             color: "transparent"
 
             function focus() {
@@ -77,50 +78,64 @@ Scope {
 
                     spacing: 15
 
-                    RowLayout {
-                        id: slider
+                    PwNodeLinkTracker {
+                        id: linkTracker
 
-                        readonly property var sink: Pipewire.defaultAudioSink
-                        readonly property bool muted: sink?.audio?.muted ?? true
-                        readonly property real volume: muted ? 0 : sink?.audio?.volume ?? 0
+                        node: Pipewire.defaultAudioSink
+                    }
 
-                        Layout.fillWidth: true
+                    Repeater {
+                        id: mixer
 
-                        spacing: 15
+                        model: linkTracker.linkGroups
 
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeLarge
-                            text: slider.sink && !slider.muted ? " " : ""
-                            color: Theme.foreground
-                        }
+                        ColumnLayout {
+                            readonly property var props: modelData.source.properties
 
-                        Rectangle {
                             Layout.fillWidth: true
-                            height: 10
-                            color: Theme.brightBlack
 
-                            Rectangle {
-                                width: Math.round(slider.volume * parent.width)
-                                height: parent.height
-                                color: Theme.foreground
-                            }
+                            spacing: 10
 
-                            MouseArea {
-                                anchors.fill: parent
+                            RowLayout {
+                                Layout.fillWidth: true
 
-                                onClicked: mouse => {
-                                    if (!slider.sink || !slider.sink.audio) { return }
-                                    slider.sink.audio.volume = Math.max(0, Math.min(1, mouse.x / width))
+                                spacing: 10
+                                
+                                Item { Layout.fillWidth: true }
+
+                                Image {
+                                    Layout.preferredWidth: 24
+                                    Layout.preferredHeight: 24
+
+                                    source: {
+                                        const direct = Quickshell.iconPath(props["application.icon-name"] || "", true)
+                                        if (direct) return direct
+                                        const key = props["application.process.binary"] || props["application.name"] || ""
+                                        const entry = DesktopEntries.heuristicLookup(key)
+                                        if (entry) {
+                                            const fromEntry = Quickshell.iconPath(entry.icon, true)
+                                            if (fromEntry) return fromEntry
+                                        }
+                                        return `image://icon/${props["application.icon-name"]}`
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+
+                                    text: `${props["application.name"]} - ${props["media.name"]}`
+                                    elide: Text.ElideRight
+                                    color: Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeNormal
                                 }
                             }
-                        }
 
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeLarge
-                            text: `${Math.round(slider.volume * 100)}%`
-                            color: Theme.foreground
+                            VolumeSlider {
+                                Layout.fillWidth: true
+
+                                node: modelData.source
+                            }
                         }
                     }
 
@@ -139,7 +154,7 @@ Scope {
 
                         spacing: 5
                         focus: true
-                        currentIndex: 0
+                        currentIndex: -1
 
                         model: sinks
 
@@ -224,6 +239,12 @@ Scope {
                                 event.accepted = true
                             }
                         }
+                    }
+
+                    VolumeSlider {
+                        Layout.fillWidth: true 
+
+                        node: Pipewire.defaultAudioSink
                     }
                 }
             }
