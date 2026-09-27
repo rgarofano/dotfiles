@@ -42,18 +42,61 @@ Scope {
             id: soundPanel
 
             property var sinks: Pipewire.nodes.values.filter(node => node.audio && node.isSink && !node.isStream)
+            property int padding: 20
+            property int globalIndex: -1
+            readonly property int globalCount: mixerList.count + sinkList.count
+            property var currentSink: null
 
             anchors.top: true
             anchors.right: true
             margins.right: 2
 
             implicitWidth: Dimensions.panelWidth
-            implicitHeight: 160 + 40 * sinkList.count + 75 * mixer.count
+            implicitHeight: content.implicitHeight + 2 * padding
             color: "transparent"
 
             function focus() {
                 focusGrab.active = true
-                sinkList.forceActiveFocus()
+            }
+
+            function setCurrentSink() {
+                if (globalIndex < mixerList.count) {
+                    currentSink = mixerList.model[mixerList.currentIndex].source
+                } else {
+                    currentSink = sinkList.model[sinkList.currentIndex]
+                }
+            }
+
+            function navigate(delta) {
+                if (delta > 0) {
+                    globalIndex = Math.min(globalIndex + delta, globalCount - 1)
+                } else {
+                    globalIndex = Math.max(0, globalIndex + delta)
+                }
+                setCurrentSink()
+            }
+
+            function adjustVolume(delta) {
+                const audio = currentSink.audio
+                if (!audio) {
+                    return
+                }
+
+                if (delta > 0) {
+                    audio.volume = Math.min(audio.volume + delta / 100, 1)
+                } else {
+                    audio.volume = Math.max(0, audio.volume + delta / 100)
+                }
+            }
+
+            function handleEnter() {
+                if (globalIndex < mixerList.count) {
+                    if (currentSink.audio) {
+                        currentSink.audio.muted = !currentSink.audio.muted
+                    }
+                } else {
+                    Pipewire.preferredDefaultAudioSink = currentSink
+                }
             }
 
             HyprlandFocusGrab {
@@ -64,17 +107,35 @@ Scope {
             }
 
             Rectangle {
+                id: frame
+
                 anchors.fill: parent
 
                 color: Theme.background
                 border.width: 2
                 border.color: Theme.blue
 
+                opacity: 0
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.InOutCubic
+                    }
+                }
+
+                Timer {
+                    interval: 50
+                    running: true
+                    onTriggered: frame.opacity = 1
+                }
+
                 ColumnLayout {
                     id: content
 
-                    anchors.fill: parent
-                    anchors.margins: 20
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: soundPanel.padding
 
                     spacing: 15
 
@@ -84,50 +145,63 @@ Scope {
                         node: Pipewire.defaultAudioSink
                     }
 
-                    Repeater {
-                        id: mixer
+                    ListView {
+                        id: mixerList
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
 
                         model: linkTracker.linkGroups
+                        currentIndex: soundPanel.globalIndex < count ? soundPanel.globalIndex : -1
+                        spacing: 20
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
 
-                        ColumnLayout {
+                        delegate: ColumnLayout {
                             readonly property var props: modelData.source.properties
 
-                            Layout.fillWidth: true
-
+                            width: ListView.view.width
                             spacing: 10
 
-                            RowLayout {
+                            Rectangle {
                                 Layout.fillWidth: true
 
-                                spacing: 10
-                                
-                                Item { Layout.fillWidth: true }
+                                height: 35
+                                color: index === mixerList.currentIndex ? Theme.brightBlack : "transparent"
 
-                                Image {
-                                    Layout.preferredWidth: 24
-                                    Layout.preferredHeight: 24
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 20
+                                    anchors.rightMargin: 20
 
-                                    source: {
-                                        const direct = Quickshell.iconPath(props["application.icon-name"] || "", true)
-                                        if (direct) return direct
-                                        const key = props["application.process.binary"] || props["application.name"] || ""
-                                        const entry = DesktopEntries.heuristicLookup(key)
-                                        if (entry) {
-                                            const fromEntry = Quickshell.iconPath(entry.icon, true)
-                                            if (fromEntry) return fromEntry
+                                    spacing: 10
+
+                                    Image {
+                                        sourceSize.width: 16
+                                        sourceSize.height: 16
+
+                                        source: {
+                                            const direct = Quickshell.iconPath(props["application.icon-name"] || "", true)
+                                            if (direct) return direct
+                                            const key = props["application.process.binary"] || props["application.name"] || ""
+                                            const entry = DesktopEntries.heuristicLookup(key)
+                                            if (entry) {
+                                                const fromEntry = Quickshell.iconPath(entry.icon, true)
+                                                if (fromEntry) return fromEntry
+                                            }
+                                            return `image://icon/${props["application.icon-name"]}`
                                         }
-                                        return `image://icon/${props["application.icon-name"]}`
                                     }
-                                }
 
-                                Text {
-                                    Layout.fillWidth: true
+                                    Text {
+                                        Layout.fillWidth: true
 
-                                    text: `${props["application.name"]} - ${props["media.name"]}`
-                                    elide: Text.ElideRight
-                                    color: Theme.foreground
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeNormal
+                                        text: `${props["application.name"]} - ${props["media.name"]}`
+                                        elide: Text.ElideRight
+                                        color: Theme.foreground
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.fontSizeNormal
+                                    }
                                 }
                             }
 
@@ -137,12 +211,14 @@ Scope {
                                 node: modelData.source
                             }
                         }
+
                     }
 
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 1
 
-                        height: 1
+                        visible: mixerList.count > 0
                         color: Theme.brightBlack
                     } 
 
@@ -153,8 +229,7 @@ Scope {
                         Layout.preferredHeight: contentHeight
 
                         spacing: 5
-                        focus: true
-                        currentIndex: -1
+                        currentIndex: soundPanel.globalIndex >= mixerList.count ? soundPanel.globalIndex - mixerList.count : -1
 
                         model: sinks
 
@@ -212,10 +287,10 @@ Scope {
 
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_J) {
-                                currentIndex = Math.min(currentIndex + 1, count - 1)
+                                soundPanel.navigate(1)
                                 event.accepted = true
                             } else if (event.key === Qt.Key_K) {
-                                currentIndex = Math.max(currentIndex - 1, 0)
+                                soundPanel.navigate(-1)
                                 event.accepted = true
                             } else if (event.key === Qt.Key_H) {
                                 const audio = Pipewire.defaultAudioSink?.audio
@@ -245,6 +320,31 @@ Scope {
                         Layout.fillWidth: true 
 
                         node: Pipewire.defaultAudioSink
+                    }
+                }
+            }
+
+            Item {
+                focus: true
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_J) {
+                        soundPanel.navigate(1)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_K) {
+                        soundPanel.navigate(-1)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_H) {
+                        const delta = event.modifiers === Qt.ShiftModifier ? -1 : -5
+                        soundPanel.adjustVolume(delta)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_L) {
+                        const delta = event.modifiers === Qt.ShiftModifier ? 1 : 5
+                        soundPanel.adjustVolume(delta)
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Return) {
+                        soundPanel.handleEnter()
+                        event.accepted = true
                     }
                 }
             }
