@@ -27,28 +27,14 @@ vim.opt.path = "**"
 -- Maximum scrollback in terminals
 vim.opt.scrollback = 1000000
 -- Leave terminal mode easily
-vim.keymap.set("t", "<C-[><C-[>", "<C-\\><C-n>")
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
 -- Use terminal mode by default
 vim.api.nvim_create_autocmd({ "TermOpen", "BufEnter", "WinEnter" }, {
     pattern = "term://*",
     command = "startinsert"
 })
--- Operate on tabs and windows in terminal mode
-vim.keymap.set("t", "<C-w>h", "<cmd>wincmd h<CR>")
-vim.keymap.set("t", "<C-w>j", "<cmd>wincmd j<CR>")
-vim.keymap.set("t", "<C-w>k", "<cmd>wincmd k<CR>")
-vim.keymap.set("t", "<C-w>l", "<cmd>wincmd l<CR>")
-vim.keymap.set("t", "<C-w>T", "<cmd>wincmd T<CR>")
-vim.keymap.set("t", "<C-w>s", function()
-    vim.cmd("wincmd s")
-    vim.cmd("terminal")
-end)
-vim.keymap.set("t", "<C-w>v", function()
-    vim.cmd("wincmd v")
-    vim.cmd("terminal")
-end)
 for i = 1, 9 do
-    vim.keymap.set({ "n", "t" }, "<C-w>" .. i, "<C-\\><C-n>" .. i .. "gt")
+    vim.keymap.set({ "n", "t" }, "<M-" .. i .. ">", "<C-\\><C-n>" .. i .. "gt")
 end
 -- Unified clipboard
 vim.opt.clipboard = "unnamedplus"
