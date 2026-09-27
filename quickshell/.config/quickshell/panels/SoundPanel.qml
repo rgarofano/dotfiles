@@ -7,196 +7,224 @@ import QtQuick.Layouts
 
 import ".."
 
-PopupWindow {
-    id: soundPanel
+Scope {
+    id: root
 
-    property var sinks: Pipewire.nodes.values.filter(node => node.audio && node.isSink && !node.isStream)
-    property var barWindow
-
-    anchor {
-        window: soundPanel.barWindow
-        rect.x: soundPanel.barWindow.width - (soundPanel.width / 2)
-        rect.y: soundPanel.barWindow.height
-    }
-
-    implicitWidth: Dimensions.panelWidth
-    implicitHeight: content.implicitHeight + 40
-    color: "transparent"
+    required property var barWindow
+    readonly property bool isOpen: loader.active
 
     function open() {
-        soundPanel.visible = true
-        focusGrab.active = true
-        sinkList.forceActiveFocus()
+        loader.active = true
+        Qt.callLater(() => {
+            loader.item?.focus()
+        })
     }
 
     function close() {
-        focusGrab.active = false
-        soundPanel.visible = false
+        loader.active = false
     }
 
     function toggle() {
-        if (soundPanel.visible) {
+        if (loader.active) {
             close()
         } else {
             open()
         }
     }
 
-    HyprlandFocusGrab {
-        id: focusGrab
+    LazyLoader {
+        id: loader
 
-        windows: [soundPanel.barWindow, soundPanel]
-        onCleared: soundPanel.visible = false
-    }
+        active: false
 
-    Rectangle {
-        anchors.fill: parent
+        PanelWindow {
+            id: soundPanel
 
-        color: Theme.background
-        border.width: 2
-        border.color: Theme.blue
+            property var sinks: Pipewire.nodes.values.filter(node => node.audio && node.isSink && !node.isStream)
 
-        ColumnLayout {
-            id: content
+            anchors.top: true
+            anchors.right: true
+            margins.right: 2
 
-            anchors.fill: parent
-            anchors.margins: 20
+            implicitWidth: Dimensions.panelWidth
+            implicitHeight: 100 + 40 * sinkList.count
+            color: "transparent"
 
-            spacing: 15
-
-            Text {
-                Layout.alignment: Qt.AlignHCenter
-
-                text: "Output Device"
-                color: Theme.foreground
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
-                font.bold: true
+            function focus() {
+                focusGrab.active = true
+                sinkList.forceActiveFocus()
             }
 
-            ListView {
-                id: sinkList
+            HyprlandFocusGrab {
+                id: focusGrab
 
-                Layout.fillWidth: true
-                Layout.preferredHeight: contentHeight
-
-                spacing: 5
-                focus: true
-                currentIndex: 0
-
-                model: sinks
-
-                delegate: Rectangle {
-                    width: ListView.view.width
-                    height: 35
-
-                    color: modelData === Pipewire.defaultAudioSink ? Theme.foreground
-                            : ListView.isCurrentItem ? Theme.brightBlack
-                            : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-
-                        width: Math.min(parent.width - 10, implicitWidth)
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-
-                        text: modelData.description
-                        color: modelData === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeNormal
-                    }
-
-                    PwObjectTracker {
-                        objects: [modelData]
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-
-                        cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-                        onEntered: sinkList.currentIndex = index
-                        onClicked: Pipewire.preferredDefaultAudioSink = modelData
-                    }
-                }
-
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_J) {
-                        currentIndex = Math.min(currentIndex + 1, count - 1)
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_K) {
-                        currentIndex = Math.max(currentIndex - 1, 0)
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_H) {
-                        const audio = Pipewire.defaultAudioSink?.audio
-                        if (audio) {
-                            const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
-                            audio.volume = Math.max(0, audio.volume - delta)
-                        }
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_L) {
-                        const audio = Pipewire.defaultAudioSink?.audio
-                        if (audio) {
-                            const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
-                            audio.volume = Math.min(1, audio.volume + delta)
-                        }
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        Pipewire.preferredDefaultAudioSink = sinks[currentIndex]
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Escape) {
-                        soundPanel.close()
-                        event.accepted = true
-                    }
-                }
+                windows: [root.barWindow, soundPanel]
+                onCleared: root.close()
             }
 
-            RowLayout {
-                id: slider
+            Rectangle {
+                anchors.fill: parent
 
-                readonly property var sink: Pipewire.defaultAudioSink
-                readonly property bool muted: sink?.audio?.muted ?? true
-                readonly property real volume: muted ? 0 : sink?.audio?.volume ?? 0
+                color: Theme.background
+                border.width: 2
+                border.color: Theme.blue
 
-                Layout.fillWidth: true
-                Layout.topMargin: 10
+                ColumnLayout {
+                    id: content
 
-                spacing: 15
+                    anchors.fill: parent
+                    anchors.margins: 20
 
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: slider.sink && !slider.muted ? " " : ""
-                    color: Theme.foreground
-                }
+                    spacing: 15
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 10
-                    color: Theme.brightBlack
+                    RowLayout {
+                        id: slider
+
+                        readonly property var sink: Pipewire.defaultAudioSink
+                        readonly property bool muted: sink?.audio?.muted ?? true
+                        readonly property real volume: muted ? 0 : sink?.audio?.volume ?? 0
+
+                        Layout.fillWidth: true
+
+                        spacing: 15
+
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            text: slider.sink && !slider.muted ? " " : ""
+                            color: Theme.foreground
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 10
+                            color: Theme.brightBlack
+
+                            Rectangle {
+                                width: Math.round(slider.volume * parent.width)
+                                height: parent.height
+                                color: Theme.foreground
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+
+                                onClicked: mouse => {
+                                    if (!slider.sink || !slider.sink.audio) { return }
+                                    slider.sink.audio.volume = Math.max(0, Math.min(1, mouse.x / width))
+                                }
+                            }
+                        }
+
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            text: `${Math.round(slider.volume * 100)}%`
+                            color: Theme.foreground
+                        }
+                    }
 
                     Rectangle {
-                        width: Math.round(slider.volume * parent.width)
-                        height: parent.height
-                        color: Theme.foreground
-                    }
+                        Layout.fillWidth: true
 
-                    MouseArea {
-                        anchors.fill: parent
+                        height: 1
+                        color: Theme.brightBlack
+                    } 
 
-                        onClicked: mouse => {
-                            if (!slider.sink || !slider.sink.audio) { return }
-                            slider.sink.audio.volume = Math.max(0, Math.min(1, mouse.x / width))
+                    ListView {
+                        id: sinkList
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
+
+                        spacing: 5
+                        focus: true
+                        currentIndex: 0
+
+                        model: sinks
+
+                        delegate: Rectangle {
+                            width: ListView.view.width
+                            height: 35
+
+                            color: modelData === Pipewire.defaultAudioSink ? Theme.foreground
+                                    : ListView.isCurrentItem ? Theme.brightBlack
+                                    : "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 10
+
+                                spacing: 15
+
+                                Text {
+                                    Layout.fillHeight: true
+
+                                    text: "󰓃"
+                                    verticalAlignment: Text.AlignVCenter
+                                    color: modelData === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 20
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+
+                                    text: modelData.description
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    verticalAlignment: Text.AlignVCenter
+                                    color: modelData === Pipewire.defaultAudioSink ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeNormal
+                                }
+
+                            }
+                            PwObjectTracker {
+                                objects: [modelData]
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+                                onEntered: sinkList.currentIndex = index
+                                onClicked: Pipewire.preferredDefaultAudioSink = modelData
+                            }
+                        }
+
+                        Keys.onPressed: event => {
+                            if (event.key === Qt.Key_J) {
+                                currentIndex = Math.min(currentIndex + 1, count - 1)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_K) {
+                                currentIndex = Math.max(currentIndex - 1, 0)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_H) {
+                                const audio = Pipewire.defaultAudioSink?.audio
+                                if (audio) {
+                                    const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
+                                    audio.volume = Math.max(0, audio.volume - delta)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_L) {
+                                const audio = Pipewire.defaultAudioSink?.audio
+                                if (audio) {
+                                    const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
+                                    audio.volume = Math.min(1, audio.volume + delta)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                Pipewire.preferredDefaultAudioSink = sinks[currentIndex]
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Escape) {
+                                root.close()
+                                event.accepted = true
+                            }
                         }
                     }
-                }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: `${Math.round(slider.volume * 100)}%`
-                    color: Theme.foreground
                 }
             }
         }
@@ -205,6 +233,6 @@ PopupWindow {
     IpcHandler {
         target: "soundPanel"
 
-        function toggle(): void { soundPanel.toggle() }
+        function toggle(): void { root.toggle() }
     }
 }
