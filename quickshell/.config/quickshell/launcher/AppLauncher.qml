@@ -41,8 +41,10 @@ Scope {
             property int maxHeight: 490
             property int minHeight: 55
 
+            anchors.top: true 
+
             implicitWidth: 450
-            implicitHeight: Math.min(maxHeight, minHeight + 75 * appList.count)
+            implicitHeight: content.implicitHeight
 
             function generateAppList() {
                 applications.clear()
@@ -79,8 +81,6 @@ Scope {
                 anchors.fill: parent
 
                 color: Theme.background
-                border.color: Theme.blue
-                border.width: 2
 
                 ColumnLayout {
                     id: content
@@ -135,24 +135,30 @@ Scope {
                     ListView {
                         id: appList
 
+                        readonly property int maxItems: 5
+                        readonly property int itemHeight: 60
+                        readonly property int gap: 10
+
                         Layout.fillWidth: true
-                        Layout.fillHeight: true
+                        Layout.preferredHeight: contentHeight
+                        Layout.maximumHeight: maxItems * itemHeight + (maxItems - 1) * gap
                         Layout.leftMargin: 10
                         Layout.rightMargin: 10
                         Layout.bottomMargin: 10
 
                         model: applications
                         width: parent.width
-                        spacing: 10
+                        spacing: gap
                         currentIndex: 0
                         clip: true
+                        boundsBehavior: Flickable.StopAtBounds
 
                         delegate: Rectangle {
                             property bool selected: ListView.isCurrentItem
 
                             width: ListView.view.width
                             height: 60
-                            color: selected ? Theme.blue : Theme.black
+                            color: selected ? Theme.brightBlack : Theme.black
 
                             RowLayout {
                                 anchors.fill: parent
@@ -173,7 +179,7 @@ Scope {
                                     Layout.alignment: Qt.AlignVCenter
 
                                     text: name
-                                    color: selected ? Theme.background : Theme.foreground
+                                    color: selected ? Theme.blue : Theme.foreground
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.fontSizeLarge
                                     font.weight: 600
