@@ -7,195 +7,209 @@ import QtQuick.Layouts
 import ".."
 import "../helpers"
 
-PopupWindow {
-    id: systemPanel
+Scope {
+    id: root
 
-    property var barWindow
-
-    anchor {
-        window: systemPanel.barWindow
-        rect.x: systemPanel.barWindow.width - width / 2
-        rect.y: systemPanel.barWindow.height
-    }
-
-    implicitWidth: Dimensions.panelWidth
-    implicitHeight: content.implicitHeight + 40
-    color: "transparent"
+    required property var barWindow
+    readonly property bool isOpen: loader.active
 
     function open() {
-        systemPanel.visible = true
-        focusGrab.active = true
+        loader.active = true
+        Qt.callLater(() => loader?.item.focus())
     }
 
     function close() {
-        focusGrab.active = false
-        systemPanel.visible = false
+        loader.active = false
     }
 
     function toggle() {
-        if (systemPanel.visible) {
+        if (loader.active) {
             close()
         } else {
             open()
         }
     }
 
-    HyprlandFocusGrab {
-        id: focusGrab
+    LazyLoader {
+        id: loader
 
-        windows: [systemPanel.barWindow, systemPanel]
-        onCleared: systemPanel.close()
-    }
+        active: false
 
-    Rectangle {
-        anchors.fill: parent
+        PanelWindow {
+            id: systemPanel
 
-        color: Theme.background
-        border.width: 2
-        border.color: Theme.blue
-        focus: true
+            readonly property int padding: 20
 
-        Keys.onPressed: event => {
-            if (event.key === Qt.Key_Escape) {
-                systemPanel.close()
-                event.accepted = true
-            }
-        }
+            anchors.top: true
+            anchors.right: true
 
-        ColumnLayout {
-            id: content
+            implicitWidth: Dimensions.panelWidth
+            implicitHeight: content.implicitHeight + 2 * systemPanel.padding
+            color: "transparent"
 
-            anchors.fill: parent
-            anchors.margins: 20
-
-            spacing: 10
-
-            Text {
-                Layout.alignment: Qt.AlignHCenter
-
-                text: "System Resources"
-                color: Theme.foreground
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
-                font.bold: true
+            function focus() {
+                focusGrab.active = true
             }
 
-            RowLayout {
-                Layout.fillWidth: true
+            HyprlandFocusGrab {
+                id: focusGrab
 
-                spacing: 10
+                windows: [root.barWindow, systemPanel]
+                onCleared: root.close()
+            }
 
-                Text {
-                    Layout.fillWidth: true
+            Rectangle {
+                anchors.fill: parent
 
-                    text: " "
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    color: Theme.foreground
-                }
+                color: Theme.background
+                border.width: 2
+                border.color: Theme.blue
+                focus: true
 
-                Rectangle {
-                    width: Dimensions.panelWidth - 180
-                    height: 10
-                    color: Theme.brightBlack
-
-                    Rectangle {
-                        width: Math.round((System.cpuUsagePercent / 100) * parent.width)
-                        height: 10
-                        color: Theme.foreground
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Escape) {
+                        root.close()
+                        event.accepted = true
                     }
                 }
 
-                Text {
-                    Layout.fillWidth: true
+                ColumnLayout {
+                    id: content
 
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: `${System.cpuUsagePercent.toFixed(1)} %`
-                    color: Theme.foreground
-                }
-            }
+                    anchors.fill: parent
+                    anchors.margins: systemPanel.padding
 
-            RowLayout {
-                Layout.fillWidth: true
+                    spacing: 10
 
-                spacing: 10
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
 
-                Text {
-                    Layout.fillWidth: true
-                    Layout.rightMargin: 9
-
-                    text: " "
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    color: Theme.foreground
-                }
-
-                Rectangle {
-                    width: Dimensions.panelWidth - 180
-                    height: 10
-                    color: Theme.brightBlack
-
-                    Rectangle {
-                        width: Math.round((System.usedMemory / System.totalMemory) * parent.width)
-                        height: 10
+                        text: "System Resources"
                         color: Theme.foreground
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeLarge
+                        font.bold: true
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        spacing: 10
+
+                        Text {
+                            Layout.fillWidth: true
+
+                            text: " "
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            color: Theme.foreground
+                        }
+
+                        Rectangle {
+                            width: Dimensions.panelWidth - 180
+                            height: 10
+                            color: Theme.brightBlack
+
+                            Rectangle {
+                                width: Math.round((System.cpuUsagePercent / 100) * parent.width)
+                                height: 10
+                                color: Theme.foreground
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            text: `${System.cpuUsagePercent.toFixed(1)} %`
+                            color: Theme.foreground
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        spacing: 10
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.rightMargin: 9
+
+                            text: " "
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            color: Theme.foreground
+                        }
+
+                        Rectangle {
+                            width: Dimensions.panelWidth - 180
+                            height: 10
+                            color: Theme.brightBlack
+
+                            Rectangle {
+                                width: Math.round((System.usedMemory / System.totalMemory) * parent.width)
+                                height: 10
+                                color: Theme.foreground
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignLeft
+
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            text: `${System.usedMemory.toFixed(1)} GiB`
+                            color: Theme.foreground
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        spacing: 10
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.rightMargin: 10
+
+                            text: "󰋊 "
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 20
+                            color: Theme.foreground
+                        }
+
+                        Rectangle {
+                            width: Dimensions.panelWidth - 180
+                            height: 10
+                            color: Theme.brightBlack
+
+                            Rectangle {
+                                width: Math.round((System.usedStorage / System.totalStorage) * parent.width)
+                                height: 10
+                                color: Theme.foreground
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            text: `${System.usedStorage.toFixed(1)} GiB`
+                            color: Theme.foreground
+                        }
                     }
                 }
-
-                Text {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignLeft
-
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: `${System.usedMemory.toFixed(1)} GiB`
-                    color: Theme.foreground
-                }
             }
 
-            RowLayout {
-                Layout.fillWidth: true
-
-                spacing: 10
-
-                Text {
-                    Layout.fillWidth: true
-                    Layout.rightMargin: 10
-
-                    text: "󰋊 "
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 20
-                    color: Theme.foreground
-                }
-
-                Rectangle {
-                    width: Dimensions.panelWidth - 180
-                    height: 10
-                    color: Theme.brightBlack
-
-                    Rectangle {
-                        width: Math.round((System.usedStorage / System.totalStorage) * parent.width)
-                        height: 10
-                        color: Theme.foreground
-                    }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: `${System.usedStorage.toFixed(1)} GiB`
-                    color: Theme.foreground
-                }
-            }
         }
     }
 
     IpcHandler {
         target: "systemPanel"
 
-        function toggle(): void { systemPanel.toggle() }
+        function toggle(): void { root.toggle() }
     }
 }

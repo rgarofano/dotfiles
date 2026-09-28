@@ -6,134 +6,159 @@ import QtQuick.Layouts
 
 import ".."
 
-PopupWindow {
-    id: themePanel
+Scope {
+    id: root
 
-    property var themes: ["Carbon Fox", "Catppuccin Latte"]
-    property var barWindow
-
-    anchor {
-        window: themePanel.barWindow
-        rect.x: themePanel.barWindow.width - (themePanel.width / 2)
-        rect.y: themePanel.barWindow.height
-    }
-
-    implicitWidth: Dimensions.panelWidth
-    implicitHeight: themes.length * themeList.contentHeight
-    color: "transparent"
+    required property var barWindow
+    readonly property bool isOpen: loader.active
 
     function open() {
-        themePanel.visible = true
-        focusGrab.active = true
-        themeList.forceActiveFocus()
+        loader.active = true
+        Qt.callLater(() => loader?.item.focus())
     }
 
     function close() {
-        focusGrab.active = false
-        themePanel.visible = false
+        loader.active = false
     }
 
     function toggle() {
-        if (themePanel.visible) {
+        if (loader.active) {
             close()
         } else {
             open()
         }
     }
 
-    HyprlandFocusGrab {
-        id: focusGrab
+    LazyLoader {
+        id: loader
 
-        windows: [themePanel.barWindow, themePanel]
+        active: false
 
-        onCleared: themePanel.visible = false
-    }
+        PanelWindow {
+            id: themePanel
 
-    Rectangle {
-        anchors.fill: parent
+            property var themes: [
+                { icon: "󰖔", name: "Carbon Fox" },
+                { icon: "", name: "Catppuccin Latte" },
+            ]
+            readonly property int padding: 20
 
-        color: Theme.background
-        border.width: 2
-        border.color: Theme.blue
+            anchors.top: true
+            anchors.right: true
 
-        ColumnLayout {
-            id: content
+            implicitWidth: 300
+            implicitHeight: content.implicitHeight + 2 * padding
+            color: "transparent"
 
-            anchors.fill: parent
-            anchors.margins: 20
-
-            spacing: 10
-
-            Text {
-                Layout.alignment: Qt.AlignHCenter
-
-                text: "Themes"
-                color: Theme.foreground
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
-                font.weight: 600
+            function focus() {
+                focusGrab.active = true
+                themeList.forceActiveFocus = true
             }
 
-            ListView {
-                id: themeList
+            function setTheme(theme) {
+                Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, theme])
+            }
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            HyprlandFocusGrab {
+                id: focusGrab
 
-                spacing: 5
-                focus: true
-                currentIndex: -1
-                model: themes
+                windows: [root.barWindow, themePanel]
 
-                delegate: Rectangle {
-                    width: parent.width
-                    height: 35
-                    color: modelData === Theme.name ? Theme.foreground : ListView.isCurrentItem ? Theme.brightBlack : "transparent"
-                    
-                    Text {
-                        anchors.centerIn: parent
+                onCleared: root.close()
+            }
 
-                        width: Math.min(parent.width - 10, implicitWidth)
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-                        text: modelData
-                        color: modelData === Theme.name ? Theme.background : Theme.foreground
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeLarge
-                    }
+            Rectangle {
+                id: frame
 
-                    MouseArea {
-                        anchors.fill: parent
-                        
-                        cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-                        onEntered: themeList.currentIndex = index
-                        onClicked: Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, modelData])
+                anchors.fill: parent
+
+                color: Theme.background
+                border.width: 2
+                border.color: Theme.blue
+                opacity: 0
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
                     }
                 }
 
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_J) {
-                        currentIndex = Math.min(currentIndex + 1, count - 1)
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_K) {
-                        currentIndex = Math.max(currentIndex - 1, 0)
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        Quickshell.execDetached([`${Quickshell.env("HOME")}/.local/bin/theme`, themes[currentIndex]])
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Escape) {
-                        themePanel.close()
-                        event.accepted = true
+                Timer {
+                    interval: 50
+                    running: true
+                    triggeredOnStart: true
+
+                    onTriggered: frame.opacity = 1
+                }
+
+                ColumnLayout {
+                    id: content
+
+                    anchors.fill: parent
+                    anchors.margins: themePanel.padding
+
+                    ListView {
+                        id: themeList
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
+
+                        spacing: 5
+                        focus: true
+                        currentIndex: -1
+                        model: themes
+
+                        delegate: Rectangle {
+                            width: ListView.view.width
+                            height: 35
+                            color: modelData.name === Theme.name ? Theme.foreground : ListView.isCurrentItem ? Theme.brightBlack : "transparent"
+                            
+                            Text {
+                                anchors.centerIn: parent
+
+                                width: Math.min(parent.width - 10, implicitWidth)
+                                elide: Text.ElideRight
+                                maximumLineCount: 1
+                                text: `${modelData.icon}  ${modelData.name}`
+                                color: modelData.name === Theme.name ? Theme.background : Theme.foreground
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeLarge
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+                                onEntered: themeList.currentIndex = index
+                                onClicked: themePanel.setTheme(modelData.name)
+                            }
+                        }
+
+                        Keys.onPressed: event => {
+                            if (event.key === Qt.Key_J) {
+                                currentIndex = Math.min(currentIndex + 1, count - 1)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_K) {
+                                currentIndex = Math.max(currentIndex - 1, 0)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                themePanel.setTheme(themes[currentIndex].name)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Escape) {
+                                root.close()
+                                event.accepted = true
+                            }
+                        }
                     }
                 }
             }
+
         }
     }
 
     IpcHandler {
         target: "themePanel"
 
-        function toggle(): void { themePanel.toggle() }
+        function toggle(): void { root.toggle() }
     }
 }

@@ -155,6 +155,7 @@ Scope {
                         currentIndex: soundPanel.globalIndex < count ? soundPanel.globalIndex : -1
                         spacing: 20
                         clip: true
+                        visible: count > 0
                         boundsBehavior: Flickable.StopAtBounds
 
                         delegate: ColumnLayout {

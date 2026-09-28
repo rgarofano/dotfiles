@@ -12,6 +12,7 @@ Scope {
     id: root
 
     required property var barWindow
+    readonly property bool isOpen: loader.active
 
     function open() {
         loader.active = true

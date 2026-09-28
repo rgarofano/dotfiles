@@ -10,7 +10,7 @@ Text {
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSizeLarge
     text: Pipewire.defaultAudioSource?.audio?.muted ? "": ""
-    color: panel.visible ? Theme.blue : Theme.foreground
+    color: panel.isOpen ? Theme.blue : Theme.foreground
 
     Behavior on color {
         ColorAnimation { duration: 150 }

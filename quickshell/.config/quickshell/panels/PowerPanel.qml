@@ -5,123 +5,138 @@ import QtQuick
 
 import ".."
 
-PopupWindow {
-    id: powerPanel
+Scope {
+    id: root
 
-    property var barWindow
-
-    anchor.window: barWindow
-    anchor.rect.x: barWindow.width - width / 2
-    anchor.rect.y: barWindow.height
-
-    implicitWidth: 150
-    implicitHeight: powerList.contentHeight + 4
+    required property var barWindow
+    readonly property bool isOpen: loader.active
 
     function open() {
-        powerPanel.visible = true
-        focusGrab.active = true
-        powerList.forceActiveFocus()
+        loader.active = true
+        Qt.callLater(() => loader?.item.focus())
     }
 
     function close() {
-        focusGrab.active = false
-        powerPanel.visible = false
+        loader.active = false
     }
-    
+
     function toggle() {
-        if (powerPanel.visible) {
+        if (loader.active) {
             close()
         } else {
             open()
         }
     }
 
-    HyprlandFocusGrab {
-        id: focusGrab
+    LazyLoader {
+        id: loader
 
-        windows: [powerPanel.barWindow, powerPanel]
-        onCleared: powerPanel.visible = false
-    }
+        active: false
 
-    Rectangle {
-        anchors.fill: parent
+        PanelWindow {
+            id: powerPanel
 
-        color: Theme.background
-        border.color: Theme.blue
-        border.width: 2
+            anchors.top: true
+            anchors.right: true
 
-        ListView {
-            id: powerList
+            implicitWidth: 150
+            implicitHeight: powerList.contentHeight + 4
 
-            property var options: ["  Shutdown", "󰑓  Reboot", "  Lock"]
-            property var commands: [
-                ["shutdown", "-h", "now"],
-                ["reboot"],
-                ["qs", "ipc", "call", "lock", "activate"]
-            ]
+            function focus() {
+                focusGrab.active = true
+                powerList.forceActiveFocus()
+            }
 
-            anchors.fill: parent
-            anchors.margins: 2
+            HyprlandFocusGrab {
+                id: focusGrab
 
-            model: options
-            currentIndex: -1
-            focus: true
+                windows: [root.barWindow, powerPanel]
+                onCleared: root.close()
+            }
 
-            delegate: Rectangle {
-                width: parent.width
-                height: 40
+            Rectangle {
+                anchors.fill: parent
 
-                color: ListView.isCurrentItem ? Theme.brightBlack : "transparent"
+                color: Theme.background
+                border.color: Theme.blue
+                border.width: 2
 
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
+                ListView {
+                    id: powerList
 
-                    text: modelData
-                    color: Theme.foreground
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    leftPadding: 10
-                }
+                    property var options: ["  Shutdown", "󰑓  Reboot", "  Lock"]
+                    property var commands: [
+                        ["shutdown", "-h", "now"],
+                        ["reboot"],
+                        ["qs", "ipc", "call", "lock", "activate"]
+                    ]
 
-                MouseArea {
                     anchors.fill: parent
+                    anchors.margins: 2
 
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onEntered: powerList.currentIndex = index
-                    onClicked: () => {
-                        if (modelData.includes("Lock")) {
-                            powerPanel.close()
+                    model: options
+                    currentIndex: -1
+                    focus: true
+
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 40
+
+                        color: ListView.isCurrentItem ? Theme.brightBlack : "transparent"
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            text: modelData
+                            color: Theme.foreground
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeLarge
+                            leftPadding: 10
                         }
-                        Quickshell.execDetached(powerList.commands[index])
+
+                        MouseArea {
+                            anchors.fill: parent
+
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onEntered: powerList.currentIndex = index
+                            onClicked: () => {
+                                if (modelData.includes("Lock")) {
+                                    root.close()
+                                }
+                                Quickshell.execDetached(powerList.commands[index])
+                            }
+                        }
+                    }
+
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_J) {
+                            currentIndex = Math.min(currentIndex + 1, count - 1)
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_K) {
+                            currentIndex = Math.max(currentIndex - 1, 0)
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                            if (options[currentIndex].includes("Lock")) {
+                                root.close()
+                            }
+                            Quickshell.execDetached(commands[currentIndex])
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_Escape) {
+                            root.close()
+                            event.accepted = true
+                        }
                     }
                 }
             }
 
-            Keys.onPressed: event => {
-                if (event.key === Qt.Key_J) {
-                    currentIndex = Math.min(currentIndex + 1, count - 1)
-                    event.accepted = true
-                } else if (event.key === Qt.Key_K) {
-                    currentIndex = Math.max(currentIndex - 1, 0)
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                    if (options[currentIndex].includes("Lock")) {
-                        powerPanel.close()
-                    }
-                    Quickshell.execDetached(commands[currentIndex])
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Escape) {
-                    powerPanel.close()
-                    event.accepted = true
-                }
-            }
         }
+
     }
 
     IpcHandler {
         target: "powerPanel"
 
-        function toggle(): void { powerPanel.toggle() }
+        function toggle(): void { root.toggle() }
     }
 }
