@@ -64,7 +64,7 @@ PopupWindow {
             anchors.margins: 2
 
             model: options
-            currentIndex: 0
+            currentIndex: -1
             focus: true
 
             delegate: Rectangle {

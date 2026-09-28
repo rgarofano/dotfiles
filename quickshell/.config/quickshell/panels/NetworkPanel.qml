@@ -259,7 +259,7 @@ Scope {
                         spacing: 10
                         implicitHeight: Math.min(contentHeight, maxItems * itemHeight + (maxItems - 1) * itemHeight)
                         focus: true
-                        currentIndex: 0
+                        currentIndex: -1
                         
                         delegate: Rectangle {
                             width: networkList.width

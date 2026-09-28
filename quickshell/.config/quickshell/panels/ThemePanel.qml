@@ -82,7 +82,7 @@ PopupWindow {
 
                 spacing: 5
                 focus: true
-                currentIndex: 0
+                currentIndex: -1
                 model: themes
 
                 delegate: Rectangle {
