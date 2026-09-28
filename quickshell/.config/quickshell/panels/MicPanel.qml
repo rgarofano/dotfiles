@@ -6,206 +6,198 @@ import QtQuick
 import QtQuick.Layouts
 
 import ".."
+import "../common"
 
-PopupWindow {
-    id: micPanel
+Scope {
+    id: root
 
-    property var microphones: Pipewire.nodes.values.filter(node => node.audio && !node.isSink && !node.isStream)
-    property var barWindow
-
-    anchor {
-        window: micPanel.barWindow
-        rect.x: micPanel.barWindow.width - (micPanel.width / 2)
-        rect.y: micPanel.barWindow.height
-    }
-
-    implicitWidth: Dimensions.panelWidth
-    implicitHeight: content.implicitHeight + 40
-    color: "transparent"
+    required property var barWindow
 
     function open() {
-        micPanel.visible = true
-        focusGrab.active = true
-        micList.forceActiveFocus()
+        loader.active = true
+        Qt.callLater(() => {
+            loader?.item.focus()
+        })
     }
 
     function close() {
-        focusGrab.active = false
-        micPanel.visible = false
+        loader.active = false
     }
 
     function toggle() {
-        if (micPanel.visible) {
+        if (loader.active) {
             close()
         } else {
             open()
         }
     }
 
-    HyprlandFocusGrab {
-        id: focusGrab
+    LazyLoader {
+        id: loader
 
-        windows: [micPanel.barWindow, micPanel]
-        onCleared: micPanel.visible = false
-    }
+        active: false
 
-    Rectangle {
-        anchors.fill: parent
+        PanelWindow {
+            id: micPanel
 
-        color: Theme.background
-        border.width: 2
-        border.color: Theme.blue
+            property var microphones: Pipewire.nodes.values.filter(node => node.audio && !node.isSink && !node.isStream)
+            readonly property int padding: 20
 
-        ColumnLayout {
-            id: content
+            anchors.top: true
+            anchors.right: true
 
-            anchors.fill: parent
-            anchors.margins: 20
+            implicitWidth: Dimensions.panelWidth
+            implicitHeight: content.implicitHeight + 2 * padding
+            color: "transparent"
 
-            spacing: 15
-
-            Text {
-                Layout.alignment: Qt.AlignHCenter
-
-                text: "Input Device"
-                color: Theme.foreground
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
-                font.bold: true
+            function focus() {
+                focusGrab.active = true
+                micList.forceActiveFocus()
             }
 
-            ListView {
-                id: micList
+            HyprlandFocusGrab {
+                id: focusGrab
 
-                Layout.fillWidth: true
-                Layout.preferredHeight: contentHeight
+                windows: [root.barWindow, micPanel]
+                onCleared: root.close()
+            }
 
-                spacing: 5
-                focus: true
-                currentIndex: 0
+            Rectangle {
+                id: frame
 
-                model: microphones
+                anchors.fill: parent
 
-                delegate: Rectangle {
-                    width: ListView.view.width
-                    height: 35
-
-                    color: modelData === Pipewire.defaultAudioSource ? Theme.foreground
-                            : ListView.isCurrentItem ? Theme.brightBlack
-                            : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-
-                        width: Math.min(parent.width - 10, implicitWidth)
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-
-                        text: modelData.description
-                        color: modelData === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
-
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeNormal
-                    }
-
-                    PwObjectTracker {
-                        objects: [modelData]
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-
-                        cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-                        onEntered: micList.currentIndex = index
-                        onClicked: Pipewire.preferredDefaultAudioSource = modelData
+                color: Theme.background
+                border.width: 2
+                border.color: Theme.blue
+                opacity: 0
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
                     }
                 }
 
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_J) {
-                        currentIndex = Math.min(currentIndex + 1, count - 1)
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_K) {
-                        currentIndex = Math.max(currentIndex - 1, 0)
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_H) {
-                        const audio = Pipewire.defaultAudioSource?.audio
-                        if (audio) {
-                            const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
-                            audio.volume = Math.max(0, audio.volume - delta)
+                Timer {
+                    interval: 50
+                    running: true
+                    triggeredOnStart: true
+
+                    onTriggered: frame.opacity = 1
+                }
+
+                ColumnLayout {
+                    id: content
+
+                    anchors.fill: parent
+                    anchors.margins: micPanel.padding
+
+                    spacing: 15
+
+                    ListView {
+                        id: micList
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
+
+                        spacing: 5
+                        focus: true
+                        currentIndex: -1
+
+                        model: microphones
+
+                        delegate: Rectangle {
+                            width: ListView.view.width
+                            height: 35
+
+                            color: modelData === Pipewire.defaultAudioSource ? Theme.foreground
+                                    : ListView.isCurrentItem ? Theme.brightBlack
+                                    : "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+
+                                spacing: 10
+
+                                Text {
+                                    text: ""
+                                    color: modelData === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeNormal
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+
+                                    text: modelData.description
+                                    elide: Text.ElideRight
+                                    color: modelData === Pipewire.defaultAudioSource ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeNormal
+                                }
+
+                            }
+
+                            PwObjectTracker {
+                                objects: [modelData]
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+                                onEntered: micList.currentIndex = index
+                                onClicked: Pipewire.preferredDefaultAudioSource = modelData
+                            }
                         }
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_L) {
-                        const audio = Pipewire.defaultAudioSource?.audio
-                        if (audio) {
-                            const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
-                            audio.volume = Math.min(1, audio.volume + delta)
+
+                        Keys.onPressed: event => {
+                            if (event.key === Qt.Key_J) {
+                                currentIndex = Math.min(currentIndex + 1, count - 1)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_K) {
+                                currentIndex = Math.max(currentIndex - 1, 0)
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_H) {
+                                const audio = Pipewire.defaultAudioSource?.audio
+                                if (audio) {
+                                    const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
+                                    audio.volume = Math.max(0, audio.volume - delta)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_L) {
+                                const audio = Pipewire.defaultAudioSource?.audio
+                                if (audio) {
+                                    const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
+                                    audio.volume = Math.min(1, audio.volume + delta)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                Pipewire.preferredDefaultAudioSource = microphones[currentIndex]
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Escape) {
+                                root.close()
+                                event.accepted = true
+                            }
                         }
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        Pipewire.preferredDefaultAudioSource = microphones[currentIndex]
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Escape) {
-                        micPanel.close()
-                        event.accepted = true
+                    }
+
+                    VolumeSlider {
+                        node: Pipewire.defaultAudioSource
+                        icon: ""
+                        mutedIcon: ""
                     }
                 }
             }
 
-            RowLayout {
-                id: slider
-
-                readonly property var mic: Pipewire.defaultAudioSource
-                readonly property bool muted: mic?.audio?.muted ?? true
-                readonly property real volume: muted ? 0 : mic?.audio?.volume ?? 0
-
-                Layout.fillWidth: true
-                Layout.topMargin: 10
-
-                spacing: 15
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: slider.mic && !slider.muted ? "" : ""
-                    color: Theme.foreground
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 10
-                    color: Theme.brightBlack
-
-                    Rectangle {
-                        width: Math.round(slider.volume * parent.width)
-                        height: parent.height
-                        color: Theme.foreground
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-
-                        onClicked: mouse => {
-                            if (!slider.mic || !slider.mic.audio) { return }
-                            slider.mic.audio.volume = Math.max(0, Math.min(1, mouse.x / width))
-                        }
-                    }
-                }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: `${Math.round(slider.volume * 100)}%`
-                    color: Theme.foreground
-                }
-            }
         }
     }
 
     IpcHandler {
         target: "micPanel"
 
-        function toggle(): void { micPanel.toggle() }
+        function toggle(): void { root.toggle() }
     }
 }
