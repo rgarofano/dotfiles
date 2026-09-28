@@ -284,36 +284,6 @@ Scope {
                                 onClicked: Pipewire.preferredDefaultAudioSink = modelData
                             }
                         }
-
-                        Keys.onPressed: event => {
-                            if (event.key === Qt.Key_J) {
-                                soundPanel.navigate(1)
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_K) {
-                                soundPanel.navigate(-1)
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_H) {
-                                const audio = Pipewire.defaultAudioSink?.audio
-                                if (audio) {
-                                    const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
-                                    audio.volume = Math.max(0, audio.volume - delta)
-                                }
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_L) {
-                                const audio = Pipewire.defaultAudioSink?.audio
-                                if (audio) {
-                                    const delta = event.modifiers === Qt.ShiftModifier ? 0.01 : 0.05
-                                    audio.volume = Math.min(1, audio.volume + delta)
-                                }
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                Pipewire.preferredDefaultAudioSink = sinks[currentIndex]
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_Escape) {
-                                root.close()
-                                event.accepted = true
-                            }
-                        }
                     }
 
                     VolumeSlider {
@@ -344,6 +314,9 @@ Scope {
                         event.accepted = true
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Return) {
                         soundPanel.handleEnter()
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Escape) {
+                        root.close()
                         event.accepted = true
                     }
                 }
