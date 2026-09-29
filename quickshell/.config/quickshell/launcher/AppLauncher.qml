@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 
 import ".."
+import "../panels"
 
 Scope {
     id: root
@@ -12,14 +13,16 @@ Scope {
     required property var barWindow
 
     function open() {
-        loader.active = true
-        Qt.callLater(() => {
-            loader.item.focus()
+        PanelManager.dispatch(root, () => {
+            loader.active = true
+            Qt.callLater(() => loader?.item.setFocus(true))
         })
     }
 
     function close() {
+        loader?.item.setFocus(false)
         loader.active = false
+        PanelManager.remove(root)
     }
 
     function toggle() {
@@ -62,8 +65,8 @@ Scope {
                 }
             }
 
-            function focus() {
-                focusGrab.active = true
+            function setFocus(focus) {
+                focusGrab.active = focus
             }
 
             HyprlandFocusGrab {

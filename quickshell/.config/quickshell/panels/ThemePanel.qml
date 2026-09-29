@@ -13,12 +13,16 @@ Scope {
     readonly property bool isOpen: loader.active
 
     function open() {
-        loader.active = true
-        Qt.callLater(() => loader?.item.focus())
+        PanelManager.dispatch(root, () => {
+            loader.active = true
+            Qt.callLater(() => loader?.item.setFocus(true))
+        })
     }
 
     function close() {
+        loader?.item.setFocus(false)
         loader.active = false
+        PanelManager.remove(root)
     }
 
     function toggle() {
@@ -50,9 +54,11 @@ Scope {
             implicitHeight: content.implicitHeight + 2 * padding
             color: "transparent"
 
-            function focus() {
-                focusGrab.active = true
-                themeList.forceActiveFocus = true
+            function setFocus(focus) {
+                if (focus) {
+                    themeList.forceActiveFocus()
+                }
+                focusGrab.active = focus
             }
 
             function setTheme(theme) {

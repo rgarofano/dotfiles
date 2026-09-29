@@ -12,12 +12,16 @@ Scope {
     readonly property bool isOpen: loader.active
 
     function open() {
-        loader.active = true
-        Qt.callLater(() => loader?.item.focus())
+        PanelManager.dispatch(root, () => {
+            loader.active = true
+            Qt.callLater(() => loader?.item.setFocus(true))
+        })
     }
 
     function close() {
+        loader?.item.setFocus(false)
         loader.active = false
+        PanelManager.remove(root)
     }
 
     function toggle() {
@@ -42,9 +46,11 @@ Scope {
             implicitWidth: 150
             implicitHeight: powerList.contentHeight + 4
 
-            function focus() {
-                focusGrab.active = true
-                powerList.forceActiveFocus()
+            function setFocus(focus) {
+                if (focus) {
+                    powerList.forceActiveFocus()
+                }
+                focusGrab.active = focus
             }
 
             HyprlandFocusGrab {
