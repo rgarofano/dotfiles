@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# bt-device: do Bluetooth actions for the Quickshell panel.
+#
+# Usage:
+#   bt-device pair|connect|disconnect|forget <address>
+#   bt-device power on|off
+#
+# Adapted from Omarchy's bin/omarchy-bluetooth-device (MIT).
+
+set -u
+
+action=${1:-}
+arg=${2:-}
+
+usage() {
+    echo "usage: bt-device pair|connect|disconnect|forget <address> | power on|off" >&2
+    exit 1
+}
+
+powered() {
+    # Not `| grep -q`: under pipefail, grep exiting early makes the pipe fail.
+    [[ $(timeout 2s bluetoothctl show 2>/dev/null) == *"Powered: yes"* ]]
+}
+
+power_on() {
+    powered && return 0
+    # bluetoothctl cannot power the adapter on while rfkill is blocking it.
+    rfkill unblock bluetooth 2>/dev/null || true
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+        powered && return 0
+        sleep 0.2
+    done
+    timeout 5s bluetoothctl power on >/dev/null 2>&1 || true
+}
+
+if [[ $action == "power" ]]; then
+    case "$arg" in
+        on)  power_on ;;
+        off) timeout 5s bluetoothctl power off >/dev/null 2>&1 || true ;;
+        *)   usage ;;
+    esac
+    exit 0
+fi
+
+[[ $arg =~ ^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$ ]] || usage
+address=$arg
+
+case "$action" in
+    pair)
+        power_on
+        timeout 20s bluetoothctl pair "$address" >/dev/null 2>&1 || true
+        bluetoothctl trust "$address" >/dev/null 2>&1 || true
+        timeout 20s bluetoothctl connect "$address" >/dev/null 2>&1 || true
+        ;;
+    connect)
+        power_on
+        bluetoothctl trust "$address" >/dev/null 2>&1 || true
+        timeout 20s bluetoothctl connect "$address" >/dev/null 2>&1 || true
+        ;;
+    disconnect)
+        timeout 10s bluetoothctl disconnect "$address" >/dev/null 2>&1 || true
+        ;;
+    forget)
+        timeout 10s bluetoothctl disconnect "$address" >/dev/null 2>&1 || true
+        timeout 10s bluetoothctl remove "$address" >/dev/null 2>&1 || true
+        ;;
+    *)
+        usage
+        ;;
+esac

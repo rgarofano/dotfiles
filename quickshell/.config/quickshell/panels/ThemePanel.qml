@@ -15,12 +15,12 @@ Scope {
     function open() {
         PanelManager.dispatch(root, () => {
             loader.active = true
-            Qt.callLater(() => loader?.item.setFocus(true))
+            Qt.callLater(() => loader.item?.setFocus(true))
         })
     }
 
     function close() {
-        loader?.item.setFocus(false)
+        loader.item?.setFocus(false)
         loader.active = false
         PanelManager.remove(root)
     }
@@ -91,8 +91,6 @@ Scope {
                 Timer {
                     interval: 50
                     running: true
-                    triggeredOnStart: true
-
                     onTriggered: frame.opacity = 1
                 }
 

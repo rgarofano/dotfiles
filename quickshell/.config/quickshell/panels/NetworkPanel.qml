@@ -17,7 +17,7 @@ Scope {
     function open() {
         PanelManager.dispatch(root, () => {
             loader.active = true
-            Qt.callLater(() => loader?.item.setFocus(true))
+            Qt.callLater(() => loader.item?.setFocus(true))
         })
     }
 
@@ -259,8 +259,9 @@ Scope {
 
                         model: device.networks
                         spacing: 10
-                        implicitHeight: Math.min(contentHeight, maxItems * itemHeight + (maxItems - 1) * itemHeight)
+                        implicitHeight: Math.min(contentHeight, maxItems * itemHeight + (maxItems - 1) * spacing)
                         focus: true
+                        clip: true
                         currentIndex: -1
                         
                         delegate: Rectangle {
@@ -281,7 +282,7 @@ Scope {
                                     text: ""
                                     color: Theme.foreground
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeLarge
+                                    font.pixelSize: 24
                                 }
 
                                 ColumnLayout {

@@ -32,9 +32,10 @@ ShellRoot {
             RowLayout {
                 Layout.rightMargin: 24
 
-                spacing: 16
+                spacing: 20
 
                 Notifications { panel: notificationCenter }
+                Bluetooth { panel: bluetoothPanel }
                 Network { panel: networkPanel }
                 AudioOutput { panel: soundPanel }
                 AudioInput { panel: micPanel }
@@ -51,6 +52,11 @@ ShellRoot {
         NotificationCenter {
             id: notificationCenter
             notificationsModel: notifications
+            barWindow: bar
+        }
+
+        BluetoothPanel {
+            id: bluetoothPanel
             barWindow: bar
         }
 

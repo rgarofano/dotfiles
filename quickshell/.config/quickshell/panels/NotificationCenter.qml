@@ -17,12 +17,12 @@ Scope {
     function open() {
         PanelManager.dispatch(root, () => {
             loader.active = true 
-            Qt.callLater(() => loader?.item.setFocus(true))
+            Qt.callLater(() => loader.item?.setFocus(true))
         })
     }
 
     function close() {
-        loader?.item.setFocus(false)
+        loader.item?.setFocus(false)
         loader.active = false
         PanelManager.remove(root)
     }
@@ -202,7 +202,7 @@ Scope {
                             }
                             event.accepted = true
                         } else if (event.key === Qt.Key_Escape) {
-                            notificationCenter.close()
+                            root.close()
                             event.accepted = true
                         }
                     }

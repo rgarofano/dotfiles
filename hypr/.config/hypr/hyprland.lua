@@ -339,6 +339,7 @@ hl.bind(mainMod .. "+ R", hl.dsp.exec_cmd("quickshell ipc call systemPanel toggl
 hl.bind(mainMod .. "+ I", hl.dsp.exec_cmd("quickshell ipc call networkPanel toggle"))
 hl.bind(mainMod .. "+ P", hl.dsp.exec_cmd("quickshell ipc call powerPanel toggle"))
 hl.bind(mainMod .. "+ N", hl.dsp.exec_cmd("quickshell ipc call notificationCenter toggle"))
+hl.bind(mainMod .. "+ B", hl.dsp.exec_cmd("quickshell ipc call bluetoothPanel toggle"))
 hl.bind(mainMod .. "+ space", hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
 
 -- Lockscreen

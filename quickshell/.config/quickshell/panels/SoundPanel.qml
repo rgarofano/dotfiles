@@ -23,7 +23,7 @@ Scope {
     }
 
     function close() {
-        loader?.item.setFocus(false)
+        loader.item?.setFocus(false)
         loader.active = false
         PanelManager.remove(root)
     }
