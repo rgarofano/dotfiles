@@ -42,6 +42,7 @@ Scope {
             id: themePanel
 
             property var themes: [
+                { icon: "󰖔", name: "Dracula" },
                 { icon: "󰖔", name: "Carbon Fox" },
                 { icon: "", name: "Catppuccin Latte" },
             ]

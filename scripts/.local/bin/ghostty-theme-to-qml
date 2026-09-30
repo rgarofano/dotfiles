@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# Convert a Ghostty theme into a Quickshell Theme.qml singleton.
+#
+# Usage:
+#   ghostty2qml.sh <theme name | path to theme file> [output file]
+#
+# Examples:
+#   ghostty2qml.sh Dracula > Theme.qml
+#   ghostty2qml.sh "Catppuccin Mocha" ~/.config/quickshell/Theme.qml
+#   ghostty2qml.sh ~/.config/ghostty/themes/mytheme
+#
+# Tip: `ghostty +list-themes` shows every theme name Ghostty knows.
+set -euo pipefail
+
+FONT_FAMILY="${FONT_FAMILY:-JetBrainsMono Nerd Font}"
+FONT_SIZE_NORMAL="${FONT_SIZE_NORMAL:-14}"
+FONT_SIZE_LARGE="${FONT_SIZE_LARGE:-18}"
+
+[[ $# -ge 1 ]] || { sed -n '2,13p' "$0"; exit 1; }
+theme="$1"
+out="${2:-}"
+
+find_theme() {
+    local name="$1"
+    [[ -f "$name" ]] && { echo "$name"; return; }
+
+    local dirs=(
+        "${XDG_CONFIG_HOME:-$HOME/.config}/ghostty/themes"
+        "/usr/share/ghostty/themes"
+        "/run/current-system/sw/share/ghostty/themes"
+        "$HOME/.nix-profile/share/ghostty/themes"
+        "/etc/profiles/per-user/${USER:-$(id -un)}/share/ghostty/themes"
+    )
+    # Resolve the directory of the ghostty binary itself (works for Nix store paths).
+    if command -v ghostty >/dev/null 2>&1; then
+        local bin
+        bin="$(readlink -f "$(command -v ghostty)")"
+        dirs+=("$(dirname "$bin")/../share/ghostty/themes")
+    fi
+
+    local d
+    for d in "${dirs[@]}"; do
+        [[ -f "$d/$name" ]] && { echo "$d/$name"; return; }
+    done
+    return 1
+}
+
+file="$(find_theme "$theme")" || {
+    echo "Theme '$theme' not found. Pass a path, or check 'ghostty +list-themes'." >&2
+    exit 1
+}
+
+# Parse "palette = N=#rrggbb", "background = #rrggbb", "foreground = #rrggbb".
+declare -A pal
+while IFS= read -r line; do
+    if [[ $line =~ ^[[:space:]]*palette[[:space:]]*=[[:space:]]*([0-9]+)[[:space:]]*=[[:space:]]*#?([0-9A-Fa-f]{6}) ]]; then
+        pal[${BASH_REMATCH[1]}]="#${BASH_REMATCH[2],,}"
+    elif [[ $line =~ ^[[:space:]]*(background|foreground)[[:space:]]*=[[:space:]]*#?([0-9A-Fa-f]{6}) ]]; then
+        pal[${BASH_REMATCH[1]}]="#${BASH_REMATCH[2],,}"
+    fi
+done < "$file"
+
+for k in background foreground {0..15}; do
+    [[ -n "${pal[$k]:-}" ]] || { echo "Missing '$k' in $file" >&2; exit 1; }
+done
+
+display_name="${THEME_NAME:-$(basename "$file")}"
+
+render() {
+cat <<EOF
+pragma Singleton
+
+import QtQuick
+
+QtObject {
+    readonly property string name: "$display_name"
+
+    readonly property color background: "${pal[background]}"
+    readonly property color foreground: "${pal[foreground]}"
+    readonly property color black: "${pal[0]}"
+    readonly property color brightBlack: "${pal[8]}"
+    readonly property color red: "${pal[1]}"
+    readonly property color brightRed: "${pal[9]}"
+    readonly property color green: "${pal[2]}"
+    readonly property color brightGreen: "${pal[10]}"
+    readonly property color yellow: "${pal[3]}"
+    readonly property color brightYellow: "${pal[11]}"
+    readonly property color blue: "${pal[4]}"
+    readonly property color brightBlue: "${pal[12]}"
+    readonly property color magenta: "${pal[5]}"
+    readonly property color brightMagenta: "${pal[13]}"
+    readonly property color cyan: "${pal[6]}"
+    readonly property color brightCyan: "${pal[14]}"
+    readonly property color white: "${pal[7]}"
+    readonly property color brightWhite: "${pal[15]}"
+
+    readonly property string fontFamily: "$FONT_FAMILY"
+    readonly property int fontSizeNormal: $FONT_SIZE_NORMAL
+    readonly property int fontSizeLarge: $FONT_SIZE_LARGE
+}
+EOF
+}
+
+if [[ -n "$out" ]]; then
+    render > "$out"
+    echo "Wrote $display_name -> $out" >&2
+else
+    render
+fi

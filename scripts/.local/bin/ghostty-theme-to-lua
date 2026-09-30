@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Convert a Ghostty theme into a Hyprland theme.lua color table.
+#
+# Usage:
+#   ghostty2hypr.sh <theme name | path to theme file> [output file]
+#
+# Examples:
+#   ghostty2hypr.sh Dracula > hypr/theme.lua
+#   ghostty2hypr.sh "Catppuccin Mocha" ~/.config/hypr/theme.lua
+#   ghostty2hypr.sh ~/.config/ghostty/themes/mytheme
+#
+# Tip: `ghostty +list-themes` shows every theme name Ghostty knows.
+set -euo pipefail
+
+[[ $# -ge 1 ]] || { sed -n '2,13p' "$0"; exit 1; }
+theme="$1"
+out="${2:-}"
+
+find_theme() {
+    local name="$1"
+    [[ -f "$name" ]] && { echo "$name"; return; }
+
+    local dirs=(
+        "${XDG_CONFIG_HOME:-$HOME/.config}/ghostty/themes"
+        "/usr/share/ghostty/themes"
+        "/run/current-system/sw/share/ghostty/themes"
+        "$HOME/.nix-profile/share/ghostty/themes"
+        "/etc/profiles/per-user/${USER:-$(id -un)}/share/ghostty/themes"
+    )
+    # Resolve the directory of the ghostty binary itself (works for Nix store paths).
+    if command -v ghostty >/dev/null 2>&1; then
+        local bin
+        bin="$(readlink -f "$(command -v ghostty)")"
+        dirs+=("$(dirname "$bin")/../share/ghostty/themes")
+    fi
+
+    local d
+    for d in "${dirs[@]}"; do
+        [[ -f "$d/$name" ]] && { echo "$d/$name"; return; }
+    done
+    return 1
+}
+
+file="$(find_theme "$theme")" || {
+    echo "Theme '$theme' not found. Pass a path, or check 'ghostty +list-themes'." >&2
+    exit 1
+}
+
+# Parse "palette = N=#rrggbb", "background = #rrggbb", "foreground = #rrggbb".
+# Hyprland wants bare hex (no leading #).
+declare -A pal
+while IFS= read -r line; do
+    if [[ $line =~ ^[[:space:]]*palette[[:space:]]*=[[:space:]]*([0-9]+)[[:space:]]*=[[:space:]]*#?([0-9A-Fa-f]{6}) ]]; then
+        pal[${BASH_REMATCH[1]}]="${BASH_REMATCH[2],,}"
+    elif [[ $line =~ ^[[:space:]]*(background|foreground)[[:space:]]*=[[:space:]]*#?([0-9A-Fa-f]{6}) ]]; then
+        pal[${BASH_REMATCH[1]}]="${BASH_REMATCH[2],,}"
+    fi
+done < "$file"
+
+for k in foreground {0..15}; do
+    [[ -n "${pal[$k]:-}" ]] || { echo "Missing '$k' in $file" >&2; exit 1; }
+done
+
+render() {
+cat <<EOF
+return {
+    foreground = "${pal[foreground]}",
+    black = "${pal[0]}",
+    brightBlack = "${pal[8]}",
+    red = "${pal[1]}",
+    brightRed = "${pal[9]}",
+    green = "${pal[2]}",
+    brightGreen = "${pal[10]}",
+    yellow = "${pal[3]}",
+    brightYellow = "${pal[11]}",
+    blue = "${pal[4]}",
+    brightBlue = "${pal[12]}",
+    magenta = "${pal[5]}",
+    brightMagenta = "${pal[13]}",
+    cyan = "${pal[6]}",
+    brightCyan = "${pal[14]}",
+    white = "${pal[7]}",
+    brightWhite = "${pal[15]}",
+}
+EOF
+}
+
+if [[ -n "$out" ]]; then
+    render > "$out"
+    echo "Wrote $(basename "$file") -> $out" >&2
+else
+    render
+fi

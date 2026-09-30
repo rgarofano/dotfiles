@@ -18,6 +18,7 @@ vim.pack.add({
     -- themes
     "https://github.com/edeneast/nightfox.nvim",
     "https://github.com/catppuccin/nvim",
+    "https://github.com/mofiqul/dracula.nvim",
 })
 
 -- telescope
