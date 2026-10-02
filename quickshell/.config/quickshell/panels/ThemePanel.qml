@@ -42,16 +42,18 @@ Scope {
             id: themePanel
 
             property var themes: [
-                { icon: "󰖔", name: "Dracula" },
-                { icon: "󰖔", name: "Carbon Fox" },
-                { icon: "", name: "Catppuccin Latte" },
+                { light: false, name: "Carbon Fox" },
+                { light: true, name: "Catppuccin Latte" },
+                { light: false, name: "Dracula" },
+                { light: false, name: "Monokai Pro" },
+                { light: true, name: "Solarized Light" },
             ]
-            readonly property int padding: 20
+            readonly property int padding: 4
 
             anchors.top: true
             anchors.right: true
 
-            implicitWidth: 300
+            implicitWidth: 250
             implicitHeight: content.implicitHeight + 2 * padding
             color: "transparent"
 
@@ -107,7 +109,7 @@ Scope {
                         Layout.fillWidth: true
                         Layout.preferredHeight: contentHeight
 
-                        spacing: 5
+                        spacing: 0
                         focus: true
                         currentIndex: -1
                         model: themes
@@ -117,16 +119,29 @@ Scope {
                             height: 35
                             color: modelData.name === Theme.name ? Theme.foreground : ListView.isCurrentItem ? Theme.brightBlack : "transparent"
                             
-                            Text {
-                                anchors.centerIn: parent
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
 
-                                width: Math.min(parent.width - 10, implicitWidth)
-                                elide: Text.ElideRight
-                                maximumLineCount: 1
-                                text: `${modelData.icon}  ${modelData.name}`
-                                color: modelData.name === Theme.name ? Theme.background : Theme.foreground
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeLarge
+                                spacing: 15
+
+                                Text {
+                                    text: modelData.light ? "" : "󰖔"
+                                    elide: Text.ElideRight
+                                    color: modelData.name === Theme.name ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 20
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+
+                                    text: modelData.name
+                                    elide: Text.ElideRight
+                                    color: modelData.name === Theme.name ? Theme.background : Theme.foreground
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeLarge
+                                }
                             }
 
                             MouseArea {

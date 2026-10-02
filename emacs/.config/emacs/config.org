@@ -33,6 +33,16 @@ Use relative line numbers
   (global-display-line-numbers-mode t)
 #+end_src
 
+* Backup Files
+
+Place backup files into a dedicated directory
+
+#+begin_src emacs-lisp
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs-saves/" t)))
+  (setq lock-file-name-transforms '((".*" "~/.emacs-saves/" t)))
+  (setq backup-directory-alist '((".*" . "~/.emacs-saves/")))
+#+end_src
+
 * Package Management
 
 Add package repositories and make sure they are up to date
@@ -51,7 +61,7 @@ Add package repositories and make sure they are up to date
 Install the packages I use
 
 #+begin_src emacs-lisp
-  (dolist (package '(evil evil-org org-superstar catppuccin-theme))
+  (dolist (package '(evil evil-org org-superstar catppuccin-theme dracula-theme monokai-pro-theme solarized-theme))
     (unless (package-installed-p package)
       (package-install package)))
 #+end_src
@@ -173,9 +183,17 @@ Log timestamps when marking a =TODO= as =DONE= and have these show up in the age
 
 * Theme
 
+Start emacs as a server so that I can issue emacs client commands to live reload theme
+
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil 
+  (require 'server)
+  (server-start)
+#+end_src
+
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil
                       :font "JetBrainsMono Nerd Font"
                       :height 120)
+  
   (load-file (expand-file-name "theme.el" user-emacs-directory))
 #+end_src

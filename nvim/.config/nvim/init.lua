@@ -19,6 +19,8 @@ vim.pack.add({
     "https://github.com/edeneast/nightfox.nvim",
     "https://github.com/catppuccin/nvim",
     "https://github.com/mofiqul/dracula.nvim",
+    "https://github.com/loctvl842/monokai-pro.nvim",
+    "https://github.com/maxmx03/solarized.nvim",
 })
 
 -- telescope
