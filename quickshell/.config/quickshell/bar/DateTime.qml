@@ -8,7 +8,7 @@ Text {
     font.pixelSize: Theme.fontSizeNormal
     font.weight: 600
     color: Theme.foreground
-    text: Qt.formatDateTime(clock.date, "ddd h:mm AP")
+    text: Qt.formatDateTime(clock.date, "ddd MMM d h:mm AP")
 
     SystemClock {
         id: clock
