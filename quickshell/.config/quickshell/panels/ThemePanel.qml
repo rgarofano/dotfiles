@@ -53,7 +53,7 @@ Scope {
             anchors.top: true
             anchors.right: true
 
-            implicitWidth: 250
+            implicitWidth: 240
             implicitHeight: content.implicitHeight + 2 * padding
             color: "transparent"
 
@@ -126,6 +126,8 @@ Scope {
                                 spacing: 15
 
                                 Text {
+                                    Layout.preferredWidth: 24
+
                                     text: modelData.light ? "" : "󰖔"
                                     elide: Text.ElideRight
                                     color: modelData.name === Theme.name ? Theme.background : Theme.foreground

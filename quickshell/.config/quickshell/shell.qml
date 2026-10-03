@@ -13,17 +13,42 @@ ShellRoot {
     PanelWindow {
         id: bar
 
-        anchors {
-            top: true
-            left: true
-            right: true
+        readonly property int shadowSize: 4
+
+        anchors.top: true
+        anchors.left: true
+        anchors.right: true
+
+        color: "transparent"
+        implicitHeight: Dimensions.barHeight + shadowSize
+        exclusiveZone: Dimensions.barHeight
+        mask: Region { item: barBackground }
+
+        Rectangle {
+            id: barBackground
+
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: Dimensions.barHeight
+
+            color: Theme.background
         }
 
-        color: Theme.background
-        implicitHeight: Dimensions.barHeight
+        Rectangle {
+            anchors.top: barBackground.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: bar.shadowSize
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.rgba(0, 0, 0, 0.35) }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+        }
 
         RowLayout {
-            anchors.fill: parent
+            anchors.fill: barBackground
 
             Workspaces {}
 
@@ -46,7 +71,7 @@ ShellRoot {
         }
 
         DateTime {
-            anchors.centerIn: parent
+            anchors.centerIn: barBackground
         }
 
         NotificationCenter {
