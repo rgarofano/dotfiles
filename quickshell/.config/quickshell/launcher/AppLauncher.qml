@@ -97,7 +97,7 @@ Scope {
                         Layout.margins: 10
 
                         height: 35
-                        color: Theme.black
+                        color: Theme.brightBlack
 
                         TextInput {
                             id: input
