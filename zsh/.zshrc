@@ -1,54 +1,98 @@
-# Prompt
+#
+# █████████ ▄███████▄ ███   ███ ███████▄  ▄███████▄
+#    ▄████▀ ███▄▄▄▄   ███   ███ ███   ███ ███▀  ▀▀▀
+#  ▄████▀    ▀██████▄ ███▀▀▀███ ████████  ███      
+# █████▄▄▄▄ ▄▄▄▄▄▄███ ███   ███ ███   ███ ████▄▄███
+# ▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀  ▀▀▀   ▀▀▀ ▀▀▀   ▀▀▀  ▀▀▀▀▀▀▀ 
+#
 
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
-fi
+# ------------------------------------------------------------
+# ENVIRONMENT
+# ------------------------------------------------------------
 
+export PATH=$PATH:$HOME/.local/bin
+export EDITOR=vim
+export VISUAL=$EDITOR
+export TERM=xterm-256color
+
+NVIM_SERVERS_DIR=$HOME/.local/share/nvim/servers
+
+# ------------------------------------------------------------
 # History
+# ------------------------------------------------------------
 
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
 
 setopt SHARE_HISTORY
-setopt HIST_IGNORE_DUPS
+setopt INC_APPEND_HISTORY
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
 
-# Environment
-
-export NVIM_SERVERS_DIR=$HOME/.local/share/nvim/servers
-export TERM=xterm-256color
-export VISUAL=vi
-export EDITOR=$VISUAL
-bindkey -e # use default emacs bindings for shell
-
-# Path
-
-export PATH=$PATH:$HOME/.local/bin:$HOME/.config/emacs/bin
-
-# Aliases
-
-if ls --color=auto >/dev/null; then
-    alias ls='ls --color=auto -p'
+if command -v fzf >/dev/null 2>&1; then
+    eval "$(fzf --zsh)"
 fi
 
-if grep --color=auto 'test' <<<'test' >/dev/null 2>&1; then
+# ------------------------------------------------------------
+# ALIASES
+# ------------------------------------------------------------
+
+if ls --help 2>&1 | grep -q -- --color; then
+    alias ls='ls --color=auto -p'
     alias grep='grep --color=auto'
 fi
 
-if command -v mpv >/dev/null 2>&1; then
-    alias mpv='mpv --save-position-on-quit=yes'
-fi
+# ------------------------------------------------------------
+# COMPLETIONS
+# ------------------------------------------------------------
 
-# Completions
-
-autoload -U compinit
-zstyle ':completion:*' menu select
-zmodload zsh/complist
+autoload -Uz compinit
 compinit
-_comp_options+=(globdots)
+zmodload zsh/complist
+zstyle ':completion:*' menu select
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+# case insensitive tab completion
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
-# Utilities
+# ------------------------------------------------------------
+# PROMPT
+# ------------------------------------------------------------
+
+autoload -Uz vcs_info
+
+precmd() {
+    vcs_info
+}
+
+setopt PROMPT_SUBST
+
+zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' unstagedstr '*'
+zstyle ':vcs_info:git:*' stagedstr '+'
+zstyle ':vcs_info:git:*' formats ' %F{red} %b%u%c%f'
+zstyle ':vcs_info:git:*' actionformats ' %F{red} %b|%a%u%c%f'
+
+PROMPT=$'\n%F{blue}󱄅 %m%f %~${vcs_info_msg_0_}\n%F{green}$%f '
+
+# ------------------------------------------------------------
+# BASH BACKWARDS COMPATIBILITY
+# ------------------------------------------------------------
+
+bindkey -e
+
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^x^e' edit-command-line
+
+# ------------------------------------------------------------
+# UTILITIES
+# ------------------------------------------------------------
 
 if command -v nvim >/dev/null 2>&1; then
     _vi_server_exists() {
@@ -99,7 +143,7 @@ if command -v nvim >/dev/null 2>&1; then
         esac
     }
 
-    vi() {
+    vim() {
         if [[ -n $1 ]]; then
             nvim "$@"
             return $?
