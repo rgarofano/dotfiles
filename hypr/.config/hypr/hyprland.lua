@@ -33,10 +33,7 @@ hl.monitor({
 ---------------------
 
 local terminal        = "ghostty"
-local fileManager     = "dolphin"
-local menu            = "rofi -show drun"
-local statusBar       = "quickshell"
-local notifier        = "mako"
+local desktop         = "quickshell"
 local blueLightFilter = "hyprsunset"
 local wallpapers      = "awww-daemon"
 
@@ -55,9 +52,8 @@ local wallpapers      = "awww-daemon"
 --   hl.exec_cmd("waybar & hyprpaper & firefox")
 -- end)
 hl.on("hyprland.start", function()
-    hl.exec_cmd(statusBar)
+    hl.exec_cmd(desktop)
     hl.exec_cmd(blueLightFilter)
-    hl.exec_cmd(notifier)
     hl.exec_cmd(wallpapers)
 end)
 
@@ -275,9 +271,6 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 -- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + escape",
-    hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
-hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + X", hl.dsp.layout("togglesplit")) -- dwindle only
